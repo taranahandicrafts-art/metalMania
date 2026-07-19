@@ -1,0 +1,11 @@
+export { AboutHero } from './AboutHero';
+export { BrandStory } from './BrandStory';
+export { Philosophy } from './Philosophy';
+export { Craftsmanship } from './Craftsmanship';
+export { WhyChooseUsAbout } from './WhyChooseUs';
+export { Statistics } from './Statistics';
+export { TeamSection } from './TeamSection';
+export { Gallery } from './Gallery';
+export { Testimonials } from './Testimonials';
+export { FAQ } from './FAQ';
+export { AboutCTA } from './AboutCTA';
