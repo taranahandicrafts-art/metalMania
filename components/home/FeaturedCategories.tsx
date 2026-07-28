@@ -53,7 +53,7 @@ export function FeaturedCategories({ categories }: FeaturedCategoriesProps) {
     c._id.startsWith('fallback-') ? `/products?category=${c.slug}` : `/products?category=${c._id}`;
 
   return (
-    <section className="relative overflow-hidden bg-lux-ivory py-24 sm:py-32">
+    <section className="relative overflow-hidden bg-lux-ivory py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
           <SectionHeading

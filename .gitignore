@@ -62,3 +62,4 @@ logs
 # documentation (keep README.md)
 *.md
 !README.md
+.opencode

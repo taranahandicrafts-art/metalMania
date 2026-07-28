@@ -1,0 +1,105 @@
+'use client';
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { SLIDES } from '../data/showcase';
+import { CarouselSlide } from '../types';
+import { ChevronLeft, ChevronRight } from './icons';
+
+interface HeroCarouselProps {
+  slides?: CarouselSlide[];
+  autoPlayMs?: number;
+}
+
+const HeroCarousel: React.FC<HeroCarouselProps> = ({
+  slides = SLIDES,
+  autoPlayMs = 5000,
+}) => {
+  const [index, setIndex] = useState(0);
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const total = slides.length;
+
+  const goTo = useCallback((n: number) => setIndex((n + total) % total), [total]);
+  const next = useCallback(() => goTo(index + 1), [goTo, index]);
+  const prev = useCallback(() => goTo(index - 1), [goTo, index]);
+
+  const restart = useCallback(() => {
+    if (timer.current) clearInterval(timer.current);
+    timer.current = setInterval(() => setIndex((i) => (i + 1) % total), autoPlayMs);
+  }, [autoPlayMs, total]);
+
+  useEffect(() => {
+    restart();
+    return () => {
+      if (timer.current) clearInterval(timer.current);
+    };
+  }, [restart]);
+
+  const withRestart = (fn: () => void) => () => {
+    fn();
+    restart();
+  };
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl shadow-xl">
+      {/* Track */}
+      <div
+        className="flex transition-transform duration-700 ease-[cubic-bezier(.4,0,.2,1)]"
+        style={{ transform: `translateX(-${index * 100}%)` }}
+      >
+        {slides.map((s) => (
+          <div key={s.id} className="relative aspect-[16/10] w-full flex-none">
+            <img src={s.image} alt={s.subtitle} className="absolute inset-0 h-full w-full object-cover" />
+            {/* Left-to-right dark scrim for legibility */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#3c2a1c]/60 via-[#3c2a1c]/20 to-transparent" />
+            <div className="absolute left-0 top-0 max-w-[62%] p-8 text-white drop-shadow-[0_1px_12px_rgba(0,0,0,0.25)] sm:p-12">
+              <h2 className="font-serif text-[clamp(30px,5vw,58px)] font-normal leading-[0.98] tracking-wide">
+                {s.titleLine1}
+                {s.titleLine2 && <><br />{s.titleLine2} </>}
+                {!s.titleLine2 && <br />}
+                <span className="italic text-[#f2c14e]">{s.accentWord}</span>
+              </h2>
+              <div className="mt-4 text-[clamp(15px,1.6vw,20px)] font-medium">{s.subtitle}</div>
+              <span className="mt-3 inline-block rounded bg-[#3c2a1c]/70 px-4 py-2 text-[clamp(15px,1.8vw,22px)] font-semibold">
+                {s.price}
+              </span>
+            </div>
+            {s.terms && <span className="absolute bottom-5 left-6 text-xs text-white/85">{s.terms}</span>}
+          </div>
+        ))}
+      </div>
+
+      {/* Arrows */}
+      <button
+        aria-label="Previous slide"
+        onClick={withRestart(prev)}
+        className="absolute left-3.5 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/80 text-neutral-700 shadow-md transition hover:scale-105 hover:bg-white"
+      >
+        <ChevronLeft />
+      </button>
+      <button
+        aria-label="Next slide"
+        onClick={withRestart(next)}
+        className="absolute right-3.5 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/80 text-neutral-700 shadow-md transition hover:scale-105 hover:bg-white"
+      >
+        <ChevronRight />
+      </button>
+
+      {/* Dots */}
+      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
+        {slides.map((s, i) => (
+          <button
+            key={s.id}
+            aria-label={`Go to slide ${i + 1}`}
+            onClick={withRestart(() => goTo(i))}
+            className={[
+              'h-2.5 rounded-full transition-all',
+              i === index ? 'w-6 bg-white' : 'w-2.5 bg-white/50 hover:bg-white/80',
+            ].join(' ')}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default HeroCarousel;

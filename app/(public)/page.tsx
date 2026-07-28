@@ -1,38 +1,37 @@
-import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import { connectDB } from '@/lib/db';
-import Product from '@/models/Product';
-import Category from '@/models/Category';
-import Review from '@/models/Review';
-import Settings from '@/models/Settings';
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import { connectDB } from "@/lib/db";
+import Product from "@/models/Product";
+import Category from "@/models/Category";
+import Review from "@/models/Review";
+import Settings from "@/models/Settings";
 import {
   HeroSection,
-  WhyChooseUs,
   FeaturedCategories,
   BestSellers,
   PromoBannerOne,
+  PromoAdsCarousel,
   NewArrivals,
-  Craftsmanship,
-  PromoBannerTwo,
   Testimonials,
   HomeFAQ,
   CTA,
-} from '@/components/home';
-import type { LuxProduct } from '@/components/home/shared';
-import { JsonLd } from '@/components/seo/JsonLd';
+} from "@/components/home";
+import type { LuxProduct } from "@/components/home/shared";
+import { JsonLd } from "@/components/seo/JsonLd";
 import {
   buildMetadata,
   websiteSchema,
   breadcrumbSchema,
   webPageSchema,
   mapStoreInfo,
-} from '@/lib/seo';
-import { SITE_NAME } from '@/lib/constants';
+} from "@/lib/seo";
+import { SITE_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
   title: `Premium Furniture — Handcrafted for ${SITE_NAME}`,
-  description: 'Discover premium handcrafted furniture. Timeless designs crafted from the finest materials for lasting beauty and everyday comfort.',
-  path: '/',
+  description:
+    "Discover premium handcrafted furniture. Timeless designs crafted from the finest materials for lasting beauty and everyday comfort.",
+  path: "/",
 });
 
 // Shared projection → LuxProduct for the marketing product cards.
@@ -54,11 +53,11 @@ function toLuxProduct(p: {
     _id: p._id.toString(),
     title: p.title,
     slug: p.slug,
-    thumbnail: p.thumbnail ?? '',
+    thumbnail: p.thumbnail ?? "",
     base_price: p.base_price,
     final_price: p.final_price ?? p.base_price,
     discount: p.discount ?? 0,
-    material: p.material ?? '',
+    material: p.material ?? "",
     is_new_arrival: p.is_new_arrival ?? false,
     is_best_seller: p.is_best_seller ?? false,
     rating: p.rating ?? undefined,
@@ -74,7 +73,7 @@ async function CategoriesSection() {
     const categories = await Category.find({ is_active: true })
       .sort({ sort_order: 1 })
       .limit(6)
-      .select('name slug image product_count description')
+      .select("name slug image product_count description")
       .lean();
 
     return (
@@ -95,12 +94,15 @@ async function CategoriesSection() {
 }
 
 const PRODUCT_FIELDS =
-  'title slug thumbnail base_price final_price discount material is_new_arrival is_best_seller rating review_count';
+  "title slug thumbnail base_price final_price discount material is_new_arrival is_best_seller rating review_count";
 
 async function BestSellersSection() {
   try {
     await connectDB();
-    const products = await Product.find({ is_best_seller: true, status: 'published' })
+    const products = await Product.find({
+      is_best_seller: true,
+      status: "published",
+    })
       .sort({ created_at: -1 })
       .limit(8)
       .select(PRODUCT_FIELDS)
@@ -115,7 +117,10 @@ async function BestSellersSection() {
 async function NewArrivalsSection() {
   try {
     await connectDB();
-    const products = await Product.find({ is_new_arrival: true, status: 'published' })
+    const products = await Product.find({
+      is_new_arrival: true,
+      status: "published",
+    })
       .sort({ created_at: -1 })
       .limit(10)
       .select(PRODUCT_FIELDS)
@@ -130,17 +135,17 @@ async function NewArrivalsSection() {
 async function TestimonialsSection() {
   try {
     await connectDB();
-    const reviews = await Review.find({ is_approved: true, status: 'approved' })
+    const reviews = await Review.find({ is_approved: true, status: "approved" })
       .sort({ created_at: -1 })
       .limit(8)
-      .select('user rating body')
+      .select("user rating body")
       .lean();
 
     return (
       <Testimonials
         testimonials={reviews.map((r) => ({
           _id: r._id.toString(),
-          name: r.user?.name ?? 'Verified Customer',
+          name: r.user?.name ?? "Verified Customer",
           text: r.body,
           rating: r.rating,
         }))}
@@ -179,21 +184,25 @@ function GridSkeleton({ count = 6 }: { count?: number }) {
 async function GlobalSchemas() {
   try {
     await connectDB();
-    const storeSettings = await Settings.findOne({ key: 'store_info' }).lean();
-    const storeInfo = mapStoreInfo(storeSettings as Record<string, unknown> | null);
-    const breadcrumbs = [{ name: 'Home', href: '/' }];
+    const storeSettings = await Settings.findOne({ key: "store_info" }).lean();
+    const storeInfo = mapStoreInfo(
+      storeSettings as Record<string, unknown> | null,
+    );
+    const breadcrumbs = [{ name: "Home", href: "/" }];
     return (
-      <JsonLd schema={[
-        websiteSchema(storeInfo),
-        breadcrumbSchema(breadcrumbs),
-        ...webPageSchema({
-          title: `Premium Furniture — Handcrafted for ${SITE_NAME}`,
-          description: 'Discover premium handcrafted furniture.',
-          path: '/',
-          breadcrumbs,
-          storeInfo,
-        }),
-      ]} />
+      <JsonLd
+        schema={[
+          websiteSchema(storeInfo),
+          breadcrumbSchema(breadcrumbs),
+          ...webPageSchema({
+            title: `Premium Furniture — Handcrafted for ${SITE_NAME}`,
+            description: "Discover premium handcrafted furniture.",
+            path: "/",
+            breadcrumbs,
+            storeInfo,
+          }),
+        ]}
+      />
     );
   } catch {
     return null;
@@ -205,14 +214,16 @@ async function GlobalSchemas() {
 export default async function HomePage() {
   return (
     <>
-      <Suspense fallback={null}><GlobalSchemas /></Suspense>
-      <JsonLd schema={breadcrumbSchema([{ name: 'Home', href: '/' }])} />
+      <Suspense fallback={null}>
+        <GlobalSchemas />
+      </Suspense>
+      <JsonLd schema={breadcrumbSchema([{ name: "Home", href: "/" }])} />
 
       {/* 1 · Cinematic hero — pinned, immersive room-assembly experience */}
       <HeroSection />
 
       {/* 2 · Why choose us */}
-      <WhyChooseUs />
+      {/* <WhyChooseUs /> */}
 
       {/* 3 · Shop by category (streamed) */}
       <Suspense fallback={<GridSkeleton count={6} />}>
@@ -233,28 +244,31 @@ export default async function HomePage() {
       </Suspense>
 
       {/* 7 · Craftsmanship & materials */}
-      <Craftsmanship />
+      {/* <Craftsmanship /> */}
 
       {/* 8 · Luxury promotion banner #2 */}
-      <PromoBannerTwo />
+      {/* <PromoBannerTwo /> */}
+      <PromoAdsCarousel />
 
       {/* 9 · Testimonials (streamed) */}
-      <Suspense fallback={
-        <section className="py-24 sm:py-32">
-          <div className="mx-auto max-w-2xl px-4 animate-pulse">
-            <div className="mx-auto mb-8 h-6 w-48 rounded bg-muted" />
-            <div className="mx-auto h-32 w-full rounded bg-muted" />
-          </div>
-        </section>
-      }>
-        <TestimonialsSection />
-      </Suspense>
+      {/* <Suspense
+        fallback={
+          <section className="py-24 sm:py-32">
+            <div className="mx-auto max-w-2xl px-4 animate-pulse">
+              <div className="mx-auto mb-8 h-6 w-48 rounded bg-muted" />
+              <div className="mx-auto h-32 w-full rounded bg-muted" />
+            </div>
+          </section>
+        }
+      >
+        {/* <TestimonialsSection /> */}
+      {/* </Suspense> */} */
 
       {/* 10 · Frequently asked questions */}
       <HomeFAQ />
 
       {/* 11 · Get in touch */}
-      <CTA />
+      {/* <CTA /> */}
     </>
   );
 }
