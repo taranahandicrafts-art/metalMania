@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Product from '@/models/Product';
+import { getAuthSession } from '@/lib/auth-guard';
 
 export async function GET(req: NextRequest) {
   try {
@@ -9,18 +10,27 @@ export async function GET(req: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')));
     const category = searchParams.get('category');
-    const status = searchParams.get('status');
     const search = searchParams.get('search');
-    const isAdmin = searchParams.get('admin') === 'true';
+
+    // Only authenticated staff may view non-published products or use admin
+    // filters. Anonymous visitors always see published products only, regardless
+    // of the `admin`/`status` query parameters they supply.
+    const session = await getAuthSession();
+    const requestedStatus = searchParams.get('status');
+    const wantsAdmin = searchParams.get('admin') === 'true';
 
     const query: Record<string, unknown> = {};
-    if (!isAdmin && !status) query.status = 'published';
+    if (session && (wantsAdmin || requestedStatus)) {
+      if (requestedStatus) query.status = requestedStatus;
+    } else {
+      query.status = 'published';
+    }
     if (category) query.category_id = category;
-    if (status) query.status = status;
     if (search) {
+      const safe = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { sku: { $regex: search, $options: 'i' } },
+        { title: { $regex: safe, $options: 'i' } },
+        { sku: { $regex: safe, $options: 'i' } },
       ];
     }
 
@@ -34,7 +44,7 @@ export async function GET(req: NextRequest) {
     ]);
 
     return NextResponse.json({ products, total, page, totalPages: Math.ceil(total / limit) });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
   }
 }

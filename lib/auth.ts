@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import type { UserRole } from '@/types';
 
 declare module 'next-auth' {
   interface Session {
@@ -7,7 +8,7 @@ declare module 'next-auth' {
       id: string;
       name: string;
       email: string;
-      role: 'admin' | 'super_admin' | 'manager' | 'staff';
+      role: UserRole;
       permissions: string[];
       image?: string | null;
     };
@@ -17,7 +18,7 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
-    role: 'admin' | 'super_admin' | 'manager' | 'staff';
+    role: UserRole;
     permissions: string[];
   }
 }
@@ -59,7 +60,7 @@ export const authOptions: NextAuthOptions = {
           id: 'admin',
           name: ADMIN_NAME,
           email: ADMIN_EMAIL,
-          role: 'super_admin',
+          role: 'superadmin',
           permissions: ['*'],
           image: null,
         };
@@ -72,9 +73,9 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
-if (user) {
+      if (user) {
         token.id = user.id;
-        token.role = (user as unknown as Record<string, unknown>).role as 'admin' | 'super_admin' | 'manager' | 'staff';
+        token.role = (user as unknown as Record<string, unknown>).role as UserRole;
         token.permissions = (user as unknown as Record<string, unknown>).permissions as string[];
         token.name = user.name;
         token.email = user.email;

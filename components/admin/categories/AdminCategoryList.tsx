@@ -31,7 +31,7 @@ export async function AdminCategoryList() {
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-lg border">
+      <div className="overflow-x-auto rounded-lg border">
         <table className="w-full">
           <thead>
             <tr className="border-b bg-muted/50 text-left text-sm font-medium text-muted-foreground">

@@ -361,7 +361,7 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
           />
         </div>
         {images.length > 0 && (
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
             {images.map((img, i) => (
               <div key={i} className="group relative aspect-square overflow-hidden rounded-lg bg-muted">
                 <Image src={img.url} alt={img.alt} fill className="object-cover" sizes="150px" />

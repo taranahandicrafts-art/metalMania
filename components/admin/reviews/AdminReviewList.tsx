@@ -20,7 +20,7 @@ export async function AdminReviewList() {
         <p className="text-sm text-muted-foreground">Moderate customer reviews</p>
       </div>
 
-      <div className="overflow-hidden rounded-lg border">
+      <div className="overflow-x-auto rounded-lg border">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50 text-left font-medium text-muted-foreground">
