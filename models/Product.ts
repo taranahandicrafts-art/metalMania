@@ -413,6 +413,11 @@ ProductSchema.pre<IProduct>('validate', function preValidate(next) {
 ProductSchema.pre<IProduct>('save', function preSave(next) {
   const discountMultiplier = 1 - (this.discount || 0) / 100;
   this.final_price = Math.round(this.base_price * discountMultiplier);
+  // Fall back to the first gallery image when no explicit thumbnail is set so
+  // the product still shows up in listings, hero carousels and promo ads.
+  if (!this.thumbnail && this.images && this.images.length > 0 && this.images[0]?.url) {
+    this.thumbnail = this.images[0].url;
+  }
   next();
 });
 
@@ -425,6 +430,21 @@ ProductSchema.pre('findOneAndUpdate', async function preFindOneAndUpdate(next) {
       const discount = (update.discount as number) ?? (doc as unknown as IProduct).discount;
       const discountMultiplier = 1 - (discount || 0) / 100;
       this.set({ final_price: Math.round(basePrice * discountMultiplier) });
+    }
+  }
+
+  // Derive the thumbnail from the first image when it is being cleared/omitted.
+  const hasThumbnailKey = update && Object.prototype.hasOwnProperty.call(update, 'thumbnail');
+  if (hasThumbnailKey && !update.thumbnail) {
+    const updateImages = update.images as ProductImage[] | undefined;
+    if (Array.isArray(updateImages) && updateImages.length > 0 && updateImages[0]?.url) {
+      this.set({ thumbnail: updateImages[0].url });
+    } else {
+      const doc = await this.model.findOne(this.getQuery()).select('images').lean();
+      const docImages = (doc as unknown as { images?: ProductImage[] } | null)?.images;
+      if (Array.isArray(docImages) && docImages.length > 0 && docImages[0]?.url) {
+        this.set({ thumbnail: docImages[0].url });
+      }
     }
   }
   next();

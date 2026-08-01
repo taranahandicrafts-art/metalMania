@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import FAQ from '@/models/FAQ';
 import { getAuthSession } from '@/lib/auth-guard';
+import { mongoErrorMessage, isClientError } from '@/lib/api-error';
 
 export async function GET() {
   try {
@@ -32,7 +33,10 @@ export async function POST(req: NextRequest) {
 
     const faq = await FAQ.create({ question, answer, sort_order: sort_order ?? 0, is_active: is_active ?? true });
     return NextResponse.json(faq, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: 'Failed to create FAQ' }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: mongoErrorMessage(error, 'Failed to create FAQ') },
+      { status: isClientError(error) ? 400 : 500 },
+    );
   }
 }

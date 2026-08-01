@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import FAQ from '@/models/FAQ';
 import { getAuthSession } from '@/lib/auth-guard';
+import { mongoErrorMessage, isClientError } from '@/lib/api-error';
 
 export async function PATCH(
   req: NextRequest,
@@ -19,8 +20,11 @@ export async function PATCH(
     const faq = await FAQ.findByIdAndUpdate(id, body, { new: true, runValidators: true });
     if (!faq) return NextResponse.json({ error: 'FAQ not found' }, { status: 404 });
     return NextResponse.json(faq);
-  } catch {
-    return NextResponse.json({ error: 'Failed to update FAQ' }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: mongoErrorMessage(error, 'Failed to update FAQ') },
+      { status: isClientError(error) ? 400 : 500 },
+    );
   }
 }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Category from '@/models/Category';
+import { mongoErrorMessage, isClientError } from '@/lib/api-error';
 
 export async function GET(
   req: NextRequest,
@@ -28,8 +29,11 @@ export async function PATCH(
     const category = await Category.findByIdAndUpdate(id, body, { new: true, runValidators: true });
     if (!category) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(category);
-  } catch {
-    return NextResponse.json({ error: 'Failed to update category' }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: mongoErrorMessage(error, 'Failed to update category') },
+      { status: isClientError(error) ? 400 : 500 },
+    );
   }
 }
 

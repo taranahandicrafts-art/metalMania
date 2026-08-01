@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Product from '@/models/Product';
 import { getAuthSession } from '@/lib/auth-guard';
+import { mongoErrorMessage, isClientError } from '@/lib/api-error';
 
 export async function GET(req: NextRequest) {
   try {
@@ -56,6 +57,9 @@ export async function POST(req: NextRequest) {
     const product = await Product.create(body);
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+    return NextResponse.json(
+      { error: mongoErrorMessage(error, 'Failed to create product') },
+      { status: isClientError(error) ? 400 : 500 },
+    );
   }
 }

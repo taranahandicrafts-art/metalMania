@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Category from '@/models/Category';
+import { mongoErrorMessage, isClientError } from '@/lib/api-error';
 
 export async function GET() {
   try {
@@ -18,7 +19,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const category = await Category.create(body);
     return NextResponse.json(category, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: 'Failed to create category' }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: mongoErrorMessage(error, 'Failed to create category') },
+      { status: isClientError(error) ? 400 : 500 },
+    );
   }
 }

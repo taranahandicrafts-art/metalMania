@@ -1,23 +1,64 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { CATEGORIES } from '../data/showcase';
 
 interface CategoryNavProps {
   categories?: string[];
   initialActive?: string;
+  /** Server-resolved active category name (takes precedence over the URL). */
+  activeCategory?: string;
+  /** Base path to navigate to on selection. Defaults to the products page. */
+  basePath?: string;
   onSelect?: (category: string) => void;
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 const CategoryNav: React.FC<CategoryNavProps> = ({
   categories = CATEGORIES,
-  initialActive = 'New Arrivals',
+  initialActive = 'All',
+  activeCategory,
+  basePath = '/products',
   onSelect,
 }) => {
-  const [active, setActive] = useState(initialActive);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [pending, setPending] = useState<string | null>(null);
+
+  const urlCategory = searchParams.get('category') ?? '';
+
+  // Clear the optimistic highlight once the URL reflects a navigation so the
+  // active state stays in sync on back/forward navigation.
+  useEffect(() => {
+    setPending(null);
+  }, [urlCategory]);
+
+  const active = useMemo(() => {
+    if (pending) return pending;
+    if (activeCategory) return activeCategory;
+    if (urlCategory) {
+      const byName = categories.find((c) => c.toLowerCase() === urlCategory.toLowerCase());
+      if (byName) return byName;
+      const bySlug = categories.find((c) => slugify(c) === urlCategory.toLowerCase());
+      if (bySlug) return bySlug;
+    }
+    return categories.includes('All') ? 'All' : initialActive;
+  }, [pending, activeCategory, urlCategory, categories, initialActive]);
 
   const handleClick = (cat: string) => {
-    setActive(cat);
-    onSelect?.(cat);
+    if (onSelect) {
+      onSelect(cat);
+      return;
+    }
+    setPending(cat);
+    router.push(cat === 'All' ? basePath : `${basePath}?category=${encodeURIComponent(cat)}`);
   };
 
   return (

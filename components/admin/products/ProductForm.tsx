@@ -109,7 +109,7 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
 
   const addImage = useCallback(() => {
     if (!newImageUrl) return;
-    setImages((prev) => [...prev, { url: newImageUrl, alt: newImageAlt }]);
+    setImages((prev) => [...prev, { url: newImageUrl, alt: newImageAlt.trim() }]);
     setNewImageUrl('');
     setNewImageAlt('');
   }, [newImageUrl, newImageAlt]);
@@ -178,7 +178,11 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
           value: Number(form.weight_value),
           unit: form.weight_unit,
         },
-        images,
+        images: images.map((img, i) => ({
+          url: img.url,
+          alt: (img.alt?.trim() || form.title || 'Product image').slice(0, 125),
+          order: i,
+        })),
         videos,
         faqs,
         seo: {
@@ -415,7 +419,10 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
           <button type="button" onClick={addImage} className="shrink-0 rounded-md bg-primary px-4 text-sm text-primary-foreground hover:bg-primary/90">Add URL</button>
           <CloudinaryUploadButton
             onUpload={(result) => {
-              setNewImageUrl(result.secure_url || result.url);
+              const url = result.secure_url || result.url;
+              if (!url) return;
+              setImages((prev) => [...prev, { url, alt: newImageAlt.trim() }]);
+              setNewImageUrl('');
               setNewImageAlt('');
             }}
             label="Upload"

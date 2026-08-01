@@ -47,9 +47,18 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
         className="flex transition-transform duration-700 ease-in-out"
         style={{ transform: `translateX(-${index * 100}%)` }}
       >
-        {slides.map((s) => (
+        {slides.map((s, i) => (
           <div key={s.id} className="relative aspect-16/10 w-full flex-none">
-            {s.image && <img src={s.image} alt={s.subtitle} className="absolute inset-0 h-full w-full object-cover" />}
+            {s.image && (
+              <img
+                src={s.image}
+                alt={s.subtitle}
+                className="absolute inset-0 h-full w-full object-cover"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                fetchPriority={i === 0 ? 'high' : 'auto'}
+                decoding="async"
+              />
+            )}
             {/* Left-to-right dark scrim for legibility */}
             <div className="absolute inset-0 bg-linear-to-r from-[#3c2a1c]/60 via-[#3c2a1c]/20 to-transparent" />
             <div className="absolute left-0 top-0 max-w-[62%] p-8 text-white drop-shadow-[0_1px_12px_rgba(0,0,0,0.25)] sm:p-12">

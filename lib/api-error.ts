@@ -25,3 +25,14 @@ export function mongoErrorMessage(err: unknown, fallback: string): string {
 
   return err.message || fallback;
 }
+
+/**
+ * Returns true when the error represents a client-side problem (validation,
+ * bad cast or duplicate key) that should map to an HTTP 4xx response rather
+ * than a generic 500.
+ */
+export function isClientError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  const e = err as Error & { code?: number };
+  return err.name === 'ValidationError' || err.name === 'CastError' || e.code === 11000;
+}

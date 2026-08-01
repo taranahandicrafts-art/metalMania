@@ -22,23 +22,32 @@ export async function GET() {
       .sort({ created_at: -1 })
       .limit(6)
       .select(
-        "_id title slug thumbnail base_price final_price discount short_description material",
+        "_id title slug thumbnail images base_price final_price discount short_description material",
       )
       .lean();
 
-    const items = products.filter((p) => !!p.thumbnail).map((p, i) => ({
-      id: (p._id as { toString(): string }).toString(),
-      badge: p.discount > 0 ? `UPTO ${p.discount}% OFF` : "FEATURED",
-      badgeClassName: BADGE_COLORS[i % BADGE_COLORS.length],
-      title: p.title.toUpperCase(),
-      tagline: p.short_description || p.material || "",
-      priceCaption: "Starting From",
-      price: formatPrice(p.final_price ?? p.base_price),
-      footnote: "FREE Delivery Available",
-      image: p.thumbnail!,
-      href: `/products/${p.slug}`,
-      bgClassName: "bg-[#efe9df]",
-    }));
+    const items = products
+      .map((p) => ({
+        product: p,
+        image:
+          p.thumbnail ||
+          (Array.isArray(p.images) && p.images[0]?.url) ||
+          "",
+      }))
+      .filter((entry) => !!entry.image)
+      .map(({ product: p, image }, i) => ({
+        id: (p._id as { toString(): string }).toString(),
+        badge: p.discount > 0 ? `UPTO ${p.discount}% OFF` : "FEATURED",
+        badgeClassName: BADGE_COLORS[i % BADGE_COLORS.length],
+        title: p.title.toUpperCase(),
+        tagline: p.short_description || p.material || "",
+        priceCaption: "Starting From",
+        price: formatPrice(p.final_price ?? p.base_price),
+        footnote: "FREE Delivery Available",
+        image,
+        href: `/products/${p.slug}`,
+        bgClassName: "bg-[#efe9df]",
+      }));
 
     const response: PromoAdsResponse = {
       title: "Deals of the Day",

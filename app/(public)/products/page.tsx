@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { isValidObjectId } from "mongoose";
 import { connectDB } from "@/lib/db";
 import Product from "@/models/Product";
 import Category from "@/models/Category";
@@ -6,12 +8,37 @@ import {
   ProductCard,
   type ProductCardData,
 } from "@/components/common/ProductCard";
-import { ProductFilters } from "./ProductFilters";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { buildMetadata, breadcrumbSchema } from "@/lib/seo";
-import { SITE_NAME } from "@/lib/constants";
 import CategoryNav from "@/components/home/herosection/CategoryNav";
+
+/**
+ * Resolves a `category` query param — which may be an ObjectId, a slug or a
+ * category name — into the matching category document.
+ */
+async function resolveCategory(
+  value: string,
+): Promise<{ id: string; name: string } | null> {
+  if (!value) return null;
+  let doc: { _id: unknown; name: string } | null = null;
+  if (isValidObjectId(value)) {
+    doc = (await Category.findById(value)
+      .select("name")
+      .lean()) as { _id: unknown; name: string } | null;
+  }
+  if (!doc) {
+    const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    doc = (await Category.findOne({
+      $or: [
+        { slug: value.toLowerCase() },
+        { name: new RegExp(`^${escaped}$`, "i") },
+      ],
+    })
+      .select("name")
+      .lean()) as { _id: unknown; name: string } | null;
+  }
+  return doc ? { id: String(doc._id), name: doc.name } : null;
+}
 
 interface Props {
   searchParams: Promise<Record<string, string>>;
@@ -35,14 +62,10 @@ export async function generateMetadata({
   if (category) {
     try {
       await connectDB();
-      const cat = await Category.findById(category)
-        .select("name description")
-        .lean();
-      if (cat) {
-        title = cat.name;
-        description =
-          cat.description ||
-          `Browse our collection of ${cat.name}. Premium furniture crafted for lasting beauty.`;
+      const resolved = await resolveCategory(category);
+      if (resolved) {
+        title = resolved.name;
+        description = `Browse our collection of ${resolved.name}. Premium furniture crafted for lasting beauty.`;
       }
     } catch {}
   }
@@ -60,15 +83,19 @@ export default async function ProductsPage({ searchParams }: Props) {
 
   const page = Math.max(1, parseInt(params.page || "1"));
   const limit = 20;
-  const category = params.category || "";
+  const categoryParam = params.category || "";
   const material = params.material || "";
   const minPrice = params.minPrice || "";
   const maxPrice = params.maxPrice || "";
   const sort = params.sort || "newest";
   const q = params.q || "";
 
+  const resolvedCategory = categoryParam
+    ? await resolveCategory(categoryParam)
+    : null;
+
   const match: Record<string, unknown> = { status: "published" };
-  if (category) match.category_id = category;
+  if (resolvedCategory) match.category_id = resolvedCategory.id;
   if (material) match.material = { $regex: material, $options: "i" } as unknown;
   if (minPrice || maxPrice) {
     const priceFilter: Record<string, number> = {};
@@ -88,7 +115,7 @@ export default async function ProductsPage({ searchParams }: Props) {
           ? { discount: -1 }
           : { created_at: -1 };
 
-  const [products, total, categories, facetResult] = await Promise.all([
+  const [products, total, categories] = await Promise.all([
     Product.find(match)
       .sort(sortOpts)
       .skip((page - 1) * limit)
@@ -99,51 +126,34 @@ export default async function ProductsPage({ searchParams }: Props) {
       .lean(),
     Product.countDocuments(match),
     Category.find({ is_active: true }).sort("name").lean(),
-    Product.aggregate([
-      { $match: { status: "published" } },
-      {
-        $group: {
-          _id: null,
-          materials: { $addToSet: "$material" },
-          minPrice: { $min: "$base_price" },
-          maxPrice: { $max: "$base_price" },
-        },
-      },
-    ]),
   ]);
 
   const totalPages = Math.ceil(total / limit);
-  const facets = {
-    materials:
-      (facetResult[0] as { materials: string[] } | undefined)?.materials || [],
-    priceRange: {
-      min: (facetResult[0] as { minPrice: number } | undefined)?.minPrice || 0,
-      max:
-        (facetResult[0] as { maxPrice: number } | undefined)?.maxPrice ||
-        100000,
-    },
-  };
 
   const breadcrumbs = [
     { name: "Home", href: "/" },
     {
       name: q
         ? `Search: "${q}"`
-        : category
-          ? categories.find((c) => c._id.toString() === category)?.name ||
-            "Products"
-          : "All Products",
+        : resolvedCategory?.name || "All Products",
       href: `/products${q ? `?q=${encodeURIComponent(q)}` : ""}`,
     },
   ];
+
+  const navCategories = ["All", ...categories.map((c) => c.name)];
 
   return (
     <>
       <JsonLd schema={breadcrumbSchema(breadcrumbs)} />
 
       <div className="mx-auto max-w-7xl px-4 py-8 pt-44 sm:px-6 lg:px-8">
-        {/* Full-width category strip: All → categories → New Arrivals */}
-        <CategoryNav />
+        {/* Full-width category strip: All → categories */}
+        <Suspense fallback={<div className="h-14 border-b border-neutral-200" />}>
+          <CategoryNav
+            categories={navCategories}
+            activeCategory={resolvedCategory?.name || "All"}
+          />
+        </Suspense>
 
         <div className="mt-8">
           {products.length === 0 ? (
@@ -181,7 +191,7 @@ export default async function ProductsPage({ searchParams }: Props) {
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <a
                   key={p}
-                  href={`/products?page=${p}&sort=${sort}${category ? `&category=${category}` : ""}${material ? `&material=${material}` : ""}${minPrice ? `&minPrice=${minPrice}` : ""}${maxPrice ? `&maxPrice=${maxPrice}` : ""}${q ? `&q=${q}` : ""}${arrivals ? `&arrivals=${arrivals}` : ""}`}
+                  href={`/products?page=${p}&sort=${sort}${categoryParam ? `&category=${encodeURIComponent(categoryParam)}` : ""}${material ? `&material=${material}` : ""}${minPrice ? `&minPrice=${minPrice}` : ""}${maxPrice ? `&maxPrice=${maxPrice}` : ""}${q ? `&q=${q}` : ""}`}
                   className={`inline-flex h-9 w-9 items-center justify-center rounded-md text-sm ${
                     p === page
                       ? "bg-primary text-primary-foreground"

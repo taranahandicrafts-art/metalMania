@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Inventory from '@/models/Inventory';
+import { mongoErrorMessage, isClientError } from '@/lib/api-error';
 
 export async function GET(req: NextRequest) {
   try {
@@ -31,11 +32,23 @@ export async function POST(req: NextRequest) {
         await existing.save();
         return NextResponse.json(existing);
       }
+      // A stock adjustment references a SKU with no inventory record, and we
+      // cannot create one without a product. Report the real reason instead of
+      // failing silently on a malformed create.
+      if (!body.product_id) {
+        return NextResponse.json(
+          { error: `No inventory record found for SKU "${body.sku.toUpperCase()}". Create the product first.` },
+          { status: 404 },
+        );
+      }
     }
 
     const record = await Inventory.create(body);
     return NextResponse.json(record, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: 'Failed to create inventory record' }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: mongoErrorMessage(error, 'Failed to create inventory record') },
+      { status: isClientError(error) ? 400 : 500 },
+    );
   }
 }
