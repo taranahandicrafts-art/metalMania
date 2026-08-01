@@ -31,7 +31,7 @@ async function resolveCategory(
     doc = (await Category.findOne({
       $or: [
         { slug: value.toLowerCase() },
-        { name: { $regex: `^${escaped}$`, $options: "i" } },
+        { name: new RegExp(`^${escaped}$`, "i") },
       ],
     })
       .select("name")
