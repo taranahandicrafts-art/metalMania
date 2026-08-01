@@ -32,21 +32,7 @@ const TEAM = [
     bio: 'Neha ensures our promise of timely delivery is kept. She manages our logistics network spanning 50+ cities with precision and care.',
     image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=300',
     social: { linkedin: '#', twitter: '#' },
-  },
-  {
-    name: 'Vikram Patel',
-    role: 'Quality Manager',
-    bio: 'Every piece passes through Vikram\'s meticulous inspection. His zero-defect philosophy has maintained our 99.8% customer satisfaction rate.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300',
-    social: { linkedin: '#' },
-  },
-  {
-    name: 'Ananya Singh',
-    role: 'Customer Experience Lead',
-    bio: 'Ananya leads our white-glove delivery and after-sales team. She ensures every customer interaction reflects the premium quality of our brand.',
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=300',
-    social: { linkedin: '#', instagram: '#' },
-  },
+  }
 ];
 
 function TeamCard({

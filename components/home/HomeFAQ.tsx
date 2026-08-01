@@ -5,39 +5,20 @@ import { cn } from '@/lib/utils';
 import { SectionHeading, Reveal } from './shared';
 import { JsonLd } from '@/components/seo/JsonLd';
 
-interface QA {
-  q: string;
-  a: string;
+export interface HomeFAQItem {
+  _id: string;
+  question: string;
+  answer: string;
 }
 
-const FAQS: QA[] = [
-  {
-    q: 'How long does a piece take to arrive?',
-    a: 'In-stock designs ship within one to two weeks. Made-to-order and bespoke commissions are hand-built to your specification and typically take six to ten weeks — your consultant will confirm a date before you commit.',
-  },
-  {
-    q: 'Do you deliver and assemble?',
-    a: 'Yes. Every order includes our white-glove service: we schedule to the hour, carry the piece into the room of your choice, assemble and level it, and take all packaging away with us.',
-  },
-  {
-    q: 'Can I customise dimensions, timber or fabric?',
-    a: 'Almost everything is configurable. Adjust size, choose from our library of hardwoods and textiles, or commission an entirely original piece drawn with our design studio.',
-  },
-  {
-    q: 'What does the guarantee cover?',
-    a: 'Our structural guarantee covers frames and joinery for twenty-five years. Natural materials are expected to develop a patina over time — we see that as a feature, and we are always here to advise on care.',
-  },
-  {
-    q: 'Is the timber responsibly sourced?',
-    a: 'All of our timber is FSC-certified and traceable to regenerative forests. Our workshop runs on renewable energy and we have eliminated single-use plastic from our packaging.',
-  },
-  {
-    q: 'What is your returns policy?',
-    a: 'If a stock piece is not right, you have thirty days to arrange a collection for a full refund. Bespoke commissions, being made to your specification, are non-returnable but fully guaranteed against defects.',
-  },
-];
+interface ItemProps {
+  qa: HomeFAQItem;
+  open: boolean;
+  onToggle: () => void;
+  index: number;
+}
 
-function Item({ qa, open, onToggle, index }: { qa: QA; open: boolean; onToggle: () => void; index: number }) {
+function Item({ qa, open, onToggle, index }: ItemProps) {
   const panelId = `faq-panel-${index}`;
   const btnId = `faq-btn-${index}`;
   return (
@@ -52,14 +33,13 @@ function Item({ qa, open, onToggle, index }: { qa: QA; open: boolean; onToggle: 
           className="group flex w-full items-center justify-between gap-6 py-6 text-left"
         >
           <span className={cn('font-display text-xl transition-colors sm:text-2xl', open ? 'text-lux-gold-dark' : 'text-lux-ink group-hover:text-lux-graphite')}>
-            {qa.q}
+            {qa.question}
           </span>
           <span className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-all duration-500', open ? 'rotate-45 border-lux-gold bg-lux-gold text-lux-ink' : 'border-lux-graphite/30 text-lux-graphite group-hover:border-lux-ink')}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 5v14M5 12h14" /></svg>
           </span>
         </button>
       </h3>
-      {/* grid-rows trick keeps the answer in the DOM (SEO) while animating height */}
       <div
         id={panelId}
         role="region"
@@ -67,23 +47,29 @@ function Item({ qa, open, onToggle, index }: { qa: QA; open: boolean; onToggle: 
         className={cn('grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]', open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')}
       >
         <div className="overflow-hidden">
-          <p className="max-w-2xl pb-7 text-base leading-relaxed text-lux-stone">{qa.a}</p>
+          <p className="max-w-2xl pb-7 text-base leading-relaxed text-lux-stone">{qa.answer}</p>
         </div>
       </div>
     </div>
   );
 }
 
-export function HomeFAQ() {
-  const [open, setOpen] = useState<number | null>(0);
+interface HomeFAQProps {
+  faqs?: HomeFAQItem[];
+}
+
+export function HomeFAQ({ faqs = [] }: HomeFAQProps) {
+  const [open, setOpen] = useState<number | null>(faqs.length > 0 ? 0 : null);
+
+  if (faqs.length === 0) return null;
 
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: FAQS.map((f) => ({
+    mainEntity: faqs.map((f) => ({
       '@type': 'Question',
-      name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a },
+      name: f.question,
+      acceptedAnswer: { '@type': 'Answer', text: f.answer },
     })),
   };
 
@@ -102,8 +88,8 @@ export function HomeFAQ() {
 
         <Reveal className="lg:pt-2">
           <div className="border-t border-lux-sand">
-            {FAQS.map((qa, i) => (
-              <Item key={qa.q} qa={qa} index={i} open={open === i} onToggle={() => setOpen(open === i ? null : i)} />
+            {faqs.map((qa, i) => (
+              <Item key={qa._id} qa={qa} index={i} open={open === i} onToggle={() => setOpen(open === i ? null : i)} />
             ))}
           </div>
         </Reveal>

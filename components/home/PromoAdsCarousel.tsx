@@ -3,8 +3,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import PromoCard from "./PromoCard";
 import { ChevronLeft, ChevronRight } from "./icons";
-import { fetchPromoAds } from "@/app/api/promoAds/route";
 import { PromoAd, PromoAdsResponse } from "./types";
+
+async function fetchPromoAds(signal?: AbortSignal): Promise<PromoAdsResponse> {
+  const res = await fetch("/api/promoAds", { signal, cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch promo ads");
+  return res.json();
+}
 
 export interface PromoAdsCarouselProps {
   fetcher?: (signal?: AbortSignal) => Promise<PromoAdsResponse>;
@@ -69,15 +74,11 @@ export const PromoAdsCarousel: React.FC<PromoAdsCarouselProps> = ({
     [index, perView],
   );
 
-  if (status === "error") {
-    return (
-      <section className="mx-auto max-w-7xl px-4 py-8">
-        <p className="rounded-xl bg-red-50 p-4 text-center text-sm text-red-600">
-          Couldn't load deals right now. Please try again.
-        </p>
-      </section>
-    );
-  }
+  // On error, render nothing — no hard error UI.
+  if (status === "error") return null;
+
+  // Optional: also hide the whole section if the API returned no deals.
+  if (status === "ready" && items.length === 0) return null;
 
   const showControls = status === "ready" && items.length > perView;
 
@@ -153,7 +154,9 @@ export const PromoAdsCarousel: React.FC<PromoAdsCarouselProps> = ({
               type="button"
               onClick={() => setIndex(i)}
               aria-label={`Go to slide ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all ${i === index ? "w-6 bg-neutral-800" : "w-1.5 bg-neutral-300"}`}
+              className={`h-1.5 rounded-full transition-all ${
+                i === index ? "w-6 bg-neutral-800" : "w-1.5 bg-neutral-300"
+              }`}
             />
           ))}
         </div>

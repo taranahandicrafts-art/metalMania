@@ -212,7 +212,9 @@ export type SettingsKey =
   | 'footer'
   | 'feature_toggles'
   | 'newsletter'
-  | 'payment';
+  | 'payment'
+  | 'promo_banner'
+  | 'sale_bar';
 
 // ──────────────────────────────────────────────
 // Coupon

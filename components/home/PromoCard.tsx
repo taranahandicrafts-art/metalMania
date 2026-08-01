@@ -37,7 +37,7 @@ const PromoCard: React.FC<{ ad: PromoAd }> = ({ ad }) => (
 
     <div className="absolute inset-y-0 right-0 w-[46%]">
       <img
-        src={ad.image}
+        src={ad.image || undefined}
         alt={ad.title}
         loading="lazy"
         className="h-full w-full object-cover object-center"

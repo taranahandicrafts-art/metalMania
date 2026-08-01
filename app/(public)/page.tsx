@@ -5,6 +5,7 @@ import Product from "@/models/Product";
 import Category from "@/models/Category";
 import Review from "@/models/Review";
 import Settings from "@/models/Settings";
+import FAQ from "@/models/FAQ";
 import {
   HeroSection,
   FeaturedCategories,
@@ -17,6 +18,11 @@ import {
   CTA,
 } from "@/components/home";
 import type { LuxProduct } from "@/components/home/shared";
+import type { CarouselSlide, ProductAd } from "@/components/home/types";
+import type { PromoBannerSettings } from "@/components/home/PromoBannerOne";
+import type { SaleBarSettings } from "@/components/home/herosection/SaleBar";
+import type { HomeFAQItem } from "@/components/home/HomeFAQ";
+import { formatPrice } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import {
   buildMetadata,
@@ -34,7 +40,8 @@ export const metadata: Metadata = buildMetadata({
   path: "/",
 });
 
-// Shared projection → LuxProduct for the marketing product cards.
+// ── Shared helpers ──
+
 function toLuxProduct(p: {
   _id: { toString(): string };
   title: string;
@@ -53,7 +60,7 @@ function toLuxProduct(p: {
     _id: p._id.toString(),
     title: p.title,
     slug: p.slug,
-    thumbnail: p.thumbnail ?? "",
+    thumbnail: p.thumbnail ?? undefined,
     base_price: p.base_price,
     final_price: p.final_price ?? p.base_price,
     discount: p.discount ?? 0,
@@ -65,7 +72,99 @@ function toLuxProduct(p: {
   };
 }
 
-// ── Async data-fetching section wrappers for streaming ──
+const PRODUCT_FIELDS =
+  "title slug thumbnail base_price final_price discount material is_new_arrival is_best_seller rating review_count short_description";
+
+const HERO_PRODUCT_FIELDS =
+  "title slug thumbnail base_price final_price discount material short_description";
+
+// ── Hero section (categories + tagged products + settings) ──
+
+async function HeroDataSection() {
+  try {
+    await connectDB();
+
+    // 1. DB categories → CategoryNav (prepend "All")
+    const dbCategories = await Category.find({ is_active: true })
+      .sort({ sort_order: 1 })
+      .select("name")
+      .lean();
+    const categories = ["All", ...dbCategories.map((c) => c.name)];
+
+    // 2. Products tagged hero-carousel → HeroCarousel slides
+    const carouselProducts = await Product.find({
+      tags: "hero-carousel",
+      status: "published",
+    })
+      .sort({ created_at: -1 })
+      .limit(5)
+      .select(HERO_PRODUCT_FIELDS)
+      .lean();
+
+    const carouselSlides: CarouselSlide[] = carouselProducts
+      .filter((p) => !!p.thumbnail)
+      .map((p) => {
+      const words = p.title.split(" ");
+      const mid = Math.ceil(words.length / 2);
+      return {
+        id: (p._id as { toString(): string }).toString(),
+        image: p.thumbnail!,
+        titleLine1: words.slice(0, mid).join(" ").toUpperCase(),
+        titleLine2: words.slice(mid).join(" ").toUpperCase(),
+        accentWord: p.material || "",
+        subtitle: p.short_description || p.title,
+        price: `Starting From ${formatPrice(p.final_price ?? p.base_price)}`,
+        terms: "T&C Apply*",
+        slug: p.slug,
+      };
+    });
+
+    // 3. Products tagged hero-ad → ProductAds (max 2)
+    const adProducts = await Product.find({
+      tags: "hero-ad",
+      status: "published",
+    })
+      .sort({ created_at: -1 })
+      .limit(2)
+      .select(HERO_PRODUCT_FIELDS)
+      .lean();
+
+    const productAds: ProductAd[] = adProducts
+      .filter((p) => !!p.thumbnail)
+      .map((p) => ({
+      id: (p._id as { toString(): string }).toString(),
+      image: p.thumbnail!,
+      title: p.title,
+      label: p.material || undefined,
+      subtitle: p.short_description || undefined,
+      priceCaption: p.discount > 0 ? "Now At" : "Starting From",
+      oldPrice: p.discount > 0 ? formatPrice(p.base_price) : undefined,
+      nowPrice: p.discount > 0 ? formatPrice(p.final_price ?? p.base_price) : undefined,
+      price: p.discount > 0 ? undefined : formatPrice(p.final_price ?? p.base_price),
+      terms: "T&C Apply*",
+      slug: p.slug,
+    }));
+
+    // 4. SaleBar settings
+    const saleBarRaw = await Settings.getByKey("sale_bar");
+    const saleBarSettings: SaleBarSettings | undefined = saleBarRaw
+      ? (saleBarRaw as SaleBarSettings)
+      : undefined;
+
+    return (
+      <HeroSection
+        categories={categories}
+        carouselSlides={carouselSlides.length > 0 ? carouselSlides : undefined}
+        productAds={productAds.length > 0 ? productAds : undefined}
+        saleBarSettings={saleBarSettings}
+      />
+    );
+  } catch {
+    return <HeroSection />;
+  }
+}
+
+// ── Categories section ──
 
 async function CategoriesSection() {
   try {
@@ -93,8 +192,7 @@ async function CategoriesSection() {
   }
 }
 
-const PRODUCT_FIELDS =
-  "title slug thumbnail base_price final_price discount material is_new_arrival is_best_seller rating review_count";
+// ── Best Sellers section ──
 
 async function BestSellersSection() {
   try {
@@ -114,6 +212,21 @@ async function BestSellersSection() {
   }
 }
 
+// ── PromoBanner section ──
+
+async function PromoBannerSection() {
+  try {
+    await connectDB();
+    const raw = await Settings.getByKey("promo_banner");
+    const settings = raw ? (raw as PromoBannerSettings) : undefined;
+    return <PromoBannerOne settings={settings} />;
+  } catch {
+    return <PromoBannerOne />;
+  }
+}
+
+// ── New Arrivals section ──
+
 async function NewArrivalsSection() {
   try {
     await connectDB();
@@ -131,6 +244,8 @@ async function NewArrivalsSection() {
     return <NewArrivals products={[]} />;
   }
 }
+
+// ── Testimonials section ──
 
 async function TestimonialsSection() {
   try {
@@ -156,6 +271,28 @@ async function TestimonialsSection() {
   }
 }
 
+// ── FAQ section ──
+
+async function FAQSection() {
+  try {
+    await connectDB();
+    const raw = await FAQ.find({ is_active: true })
+      .sort({ sort_order: 1, created_at: 1 })
+      .select("_id question answer")
+      .lean();
+
+    const faqs: HomeFAQItem[] = raw.map((f) => ({
+      _id: (f._id as { toString(): string }).toString(),
+      question: f.question,
+      answer: f.answer,
+    }));
+
+    return <HomeFAQ faqs={faqs} />;
+  } catch {
+    return null;
+  }
+}
+
 // ── Shared skeleton fallbacks for Suspense ──
 
 function GridSkeleton({ count = 6 }: { count?: number }) {
@@ -167,7 +304,7 @@ function GridSkeleton({ count = 6 }: { count?: number }) {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: count }).map((_, i) => (
               <div key={i} className="space-y-3">
-                <div className="aspect-[4/3] rounded-xl bg-muted" />
+                <div className="aspect-4/3 rounded-xl bg-muted" />
                 <div className="h-4 w-3/4 rounded bg-muted" />
                 <div className="h-3 w-1/3 rounded bg-muted" />
               </div>
@@ -179,7 +316,24 @@ function GridSkeleton({ count = 6 }: { count?: number }) {
   );
 }
 
-// ── Schemas (data-dependent, fetched in parallel with sections) ──
+function HeroSkeleton() {
+  return (
+    <div className="mt-41.5 animate-pulse bg-white">
+      <div className="h-12 bg-muted" />
+      <div className="mx-auto max-w-340 px-5 py-6">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[2fr_1fr]">
+          <div className="aspect-16/10 rounded-2xl bg-muted" />
+          <div className="flex flex-col gap-5">
+            <div className="flex-1 rounded-2xl bg-muted" />
+            <div className="flex-1 rounded-2xl bg-muted" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Schemas ──
 
 async function GlobalSchemas() {
   try {
@@ -219,56 +373,38 @@ export default async function HomePage() {
       </Suspense>
       <JsonLd schema={breadcrumbSchema([{ name: "Home", href: "/" }])} />
 
-      {/* 1 · Cinematic hero — pinned, immersive room-assembly experience */}
-      <HeroSection />
+      {/* 1 · Hero — categories, carousel & ads all from DB */}
+      <Suspense fallback={<HeroSkeleton />}>
+        <HeroDataSection />
+      </Suspense>
 
-      {/* 2 · Why choose us */}
-      {/* <WhyChooseUs /> */}
-
-      {/* 3 · Shop by category (streamed) */}
+      {/* 2 · Shop by category (streamed) */}
       <Suspense fallback={<GridSkeleton count={6} />}>
         <CategoriesSection />
       </Suspense>
 
-      {/* 4 · Featured collection (streamed) */}
+      {/* 3 · Best Sellers (streamed) */}
       <Suspense fallback={<GridSkeleton count={8} />}>
         <BestSellersSection />
       </Suspense>
 
-      {/* 5 · Luxury promotion banner #1 */}
-      <PromoBannerOne />
+      {/* 4 · Promo banner — settings-driven */}
+      <Suspense fallback={null}>
+        <PromoBannerSection />
+      </Suspense>
 
-      {/* 6 · New arrivals (streamed) */}
+      {/* 5 · New Arrivals (streamed) */}
       <Suspense fallback={<GridSkeleton count={4} />}>
         <NewArrivalsSection />
       </Suspense>
 
-      {/* 7 · Craftsmanship & materials */}
-      {/* <Craftsmanship /> */}
-
-      {/* 8 · Luxury promotion banner #2 */}
-      {/* <PromoBannerTwo /> */}
+      {/* 6 · Deals carousel — products tagged promo-ad */}
       <PromoAdsCarousel />
 
-      {/* 9 · Testimonials (streamed) */}
-      {/* <Suspense
-        fallback={
-          <section className="py-24 sm:py-32">
-            <div className="mx-auto max-w-2xl px-4 animate-pulse">
-              <div className="mx-auto mb-8 h-6 w-48 rounded bg-muted" />
-              <div className="mx-auto h-32 w-full rounded bg-muted" />
-            </div>
-          </section>
-        }
-      >
-        {/* <TestimonialsSection /> */}
-      {/* </Suspense> */} */
-
-      {/* 10 · Frequently asked questions */}
-      <HomeFAQ />
-
-      {/* 11 · Get in touch */}
-      {/* <CTA /> */}
+      {/* 7 · FAQs — admin-managed */}
+      <Suspense fallback={null}>
+        <FAQSection />
+      </Suspense>
     </>
   );
 }
