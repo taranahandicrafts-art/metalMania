@@ -72,7 +72,7 @@ export default function AboutPage() {
       <TeamSection />
       <Gallery />
       <Testimonials />
-      <FAQ />
+      {/* <FAQ /> */}
       <AboutCTA />
     </>
   );

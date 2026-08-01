@@ -7,6 +7,7 @@ export interface CarouselSlide {
   subtitle: string;
   price: string;           // e.g. "Starting From ₹1,169"
   terms?: string;
+  slug?: string;           // product slug for "Shop Now" link
 }
 
 export interface ProductAd {
@@ -22,6 +23,7 @@ export interface ProductAd {
   oldPrice?: string;       // struck-through price
   nowPrice?: string;       // shown in dark pill
   terms?: string;
+  slug?: string;           // product slug for linking
 }
 
 export interface Bank {

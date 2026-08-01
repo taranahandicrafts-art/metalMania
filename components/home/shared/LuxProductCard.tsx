@@ -6,7 +6,7 @@ export interface LuxProduct {
   _id: string;
   title: string;
   slug: string;
-  thumbnail: string;
+  thumbnail?: string;
   base_price: number;
   final_price: number;
   discount: number;

@@ -44,7 +44,11 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
     assembly_instructions: (initialData?.assembly_instructions as string) || '',
     seo_title: ((initialData?.seo as Record<string, string>)?.title) || '',
     seo_description: ((initialData?.seo as Record<string, string>)?.description) || '',
-    seo_keywords: ((initialData?.seo as Record<string, string>)?.keywords) || '',
+    seo_keywords: (() => {
+      const kw = (initialData?.seo as Record<string, unknown>)?.keywords;
+      if (Array.isArray(kw)) return kw.join(', ');
+      return (kw as string) || '';
+    })(),
     shipping_weight: ((initialData?.shipping as Record<string, unknown>)?.weight as number) || 0,
     shipping_flat_rate: ((initialData?.shipping as Record<string, unknown>)?.flat_rate as number) || 0,
     shipping_free: ((initialData?.shipping as Record<string, unknown>)?.free_shipping as boolean) || false,
@@ -70,6 +74,23 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
   const [faqs, setFaqs] = useState<{ question: string; answer: string }[]>(
     (initialData?.faqs as { question: string; answer: string }[]) || [],
   );
+  const [tags, setTags] = useState<string[]>(
+    ((initialData?.tags || []) as string[]),
+  );
+  const [tagInput, setTagInput] = useState('');
+
+  const addTag = useCallback(() => {
+    const tag = tagInput.trim().toLowerCase().replace(/\s+/g, '-');
+    if (tag && !tags.includes(tag)) {
+      setTags((prev) => [...prev, tag]);
+    }
+    setTagInput('');
+  }, [tagInput, tags]);
+
+  const removeTag = useCallback((tag: string) => {
+    setTags((prev) => prev.filter((t) => t !== tag));
+  }, []);
+
   const [relatedIds, setRelatedIds] = useState<string[]>(
     ((initialData?.related_product_ids || []) as string[]).map((id: string | { toString(): string }) => (typeof id === 'string' ? id : (id as unknown as { toString(): string }).toString())),
   );
@@ -175,6 +196,7 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
           period: form.warranty_period,
           description: form.warranty_desc,
         },
+        tags,
         related_product_ids: relatedIds,
         cross_sell_product_ids: crossSellIds,
         upsell_product_ids: upsellIds,
@@ -343,6 +365,45 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
               {label}
             </label>
           ))}
+        </div>
+
+        {/* Tags — control which home-page sections this product appears in */}
+        <div className="space-y-2 pt-2">
+          <label className={labelClass}>
+            Section Tags
+            <span className="ml-2 text-xs font-normal text-muted-foreground">
+              e.g. <code className="rounded bg-muted px-1">hero-carousel</code>, <code className="rounded bg-muted px-1">hero-ad</code>, <code className="rounded bg-muted px-1">promo-ad</code>
+            </span>
+          </label>
+          <div className="flex gap-2">
+            <input
+              className={`${inputClass} flex-1`}
+              placeholder="Type a tag and press Add"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
+            />
+            <button type="button" onClick={addTag} className="shrink-0 rounded-md bg-primary px-4 text-sm text-primary-foreground hover:bg-primary/90">
+              Add
+            </button>
+          </div>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {tags.map((tag) => (
+                <span key={tag} className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => removeTag(tag)}
+                    aria-label={`Remove tag ${tag}`}
+                    className="flex h-4 w-4 items-center justify-center rounded-full hover:bg-amber-200"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

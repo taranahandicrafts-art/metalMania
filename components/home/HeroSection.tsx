@@ -1,16 +1,25 @@
 import React from "react";
-import AnnouncementBar from "./herosection/AnnouncementBar";
 import CategoryNav from "./herosection/CategoryNav";
-import CountdownTimer from "./herosection/CountdownTimer";
-import HeroCarousel from "./herosection/HeroCarousel";
-import SaleBar from "./herosection/SaleBar";
 import Showcase from "./herosection/Showcase";
-import TopContactBar from "./herosection/TopContactBar";
+import SaleBar, { SaleBarSettings } from "./herosection/SaleBar";
+import { CarouselSlide, ProductAd } from "./types";
 
-export const HeroSection: React.FC = () => (
-  <div className="mt-[166px] bg-white font-sans text-neutral-900 antialiased">
-    <CategoryNav />
-    <Showcase />
-    <SaleBar />
+export interface HeroSectionProps {
+  categories?: string[];
+  carouselSlides?: CarouselSlide[];
+  productAds?: ProductAd[];
+  saleBarSettings?: SaleBarSettings;
+}
+
+export const HeroSection: React.FC<HeroSectionProps> = ({
+  categories,
+  carouselSlides,
+  productAds,
+  saleBarSettings,
+}) => (
+  <div className="mt-41.5 bg-white font-sans text-neutral-900 antialiased">
+    <CategoryNav categories={categories} />
+    <Showcase slides={carouselSlides} ads={productAds} />
+    <SaleBar settings={saleBarSettings} />
   </div>
 );

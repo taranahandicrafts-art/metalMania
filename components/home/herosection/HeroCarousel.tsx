@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { SLIDES } from '../data/showcase';
 import { CarouselSlide } from '../types';
 import { ChevronLeft, ChevronRight } from './icons';
@@ -43,14 +44,14 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
     <div className="relative overflow-hidden rounded-2xl shadow-xl">
       {/* Track */}
       <div
-        className="flex transition-transform duration-700 ease-[cubic-bezier(.4,0,.2,1)]"
+        className="flex transition-transform duration-700 ease-in-out"
         style={{ transform: `translateX(-${index * 100}%)` }}
       >
         {slides.map((s) => (
-          <div key={s.id} className="relative aspect-[16/10] w-full flex-none">
-            <img src={s.image} alt={s.subtitle} className="absolute inset-0 h-full w-full object-cover" />
+          <div key={s.id} className="relative aspect-16/10 w-full flex-none">
+            {s.image && <img src={s.image} alt={s.subtitle} className="absolute inset-0 h-full w-full object-cover" />}
             {/* Left-to-right dark scrim for legibility */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#3c2a1c]/60 via-[#3c2a1c]/20 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-r from-[#3c2a1c]/60 via-[#3c2a1c]/20 to-transparent" />
             <div className="absolute left-0 top-0 max-w-[62%] p-8 text-white drop-shadow-[0_1px_12px_rgba(0,0,0,0.25)] sm:p-12">
               <h2 className="font-serif text-[clamp(30px,5vw,58px)] font-normal leading-[0.98] tracking-wide">
                 {s.titleLine1}
@@ -62,6 +63,19 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
               <span className="mt-3 inline-block rounded bg-[#3c2a1c]/70 px-4 py-2 text-[clamp(15px,1.8vw,22px)] font-semibold">
                 {s.price}
               </span>
+              {s.slug && (
+                <div className="mt-4">
+                  <Link
+                    href={`/products/${s.slug}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-[#f2c14e] px-5 py-2.5 text-sm font-semibold text-[#3c2a1c] transition-opacity hover:opacity-90"
+                  >
+                    Shop Now
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
+              )}
             </div>
             {s.terms && <span className="absolute bottom-5 left-6 text-xs text-white/85">{s.terms}</span>}
           </div>
