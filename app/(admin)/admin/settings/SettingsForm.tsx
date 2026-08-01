@@ -1,73 +1,188 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface SettingsFormProps {
   initialData: Record<string, Record<string, unknown>>;
 }
 
-const SECTIONS = [
+type FieldType = "text" | "textarea" | "email" | "url" | "checkbox" | "number";
+
+interface SectionField {
+  key: string;
+  label: string;
+  type: FieldType;
+  default?: string | number | boolean;
+}
+
+interface Section {
+  key: string;
+  label: string;
+  fields: SectionField[];
+}
+
+const SECTIONS: Section[] = [
   {
-    key: 'store_info',
-    label: 'Store Information',
+    key: "promo_banner",
+    label: "Promo Banner",
     fields: [
-      { key: 'name', label: 'Store Name', type: 'text' },
-      { key: 'tagline', label: 'Tagline', type: 'text' },
-      { key: 'description', label: 'Description', type: 'textarea' },
-      { key: 'phone', label: 'Phone', type: 'text' },
-      { key: 'email', label: 'Email', type: 'email' },
-      { key: 'address', label: 'Address', type: 'textarea' },
+      {
+        key: "eyebrow",
+        label: "Eyebrow",
+        type: "text",
+        default: "The atelier event",
+      },
+      {
+        key: "title",
+        label: "Title",
+        type: "text",
+        default: "The living room,",
+      },
+      {
+        key: "title_accent",
+        label: "Title Accent",
+        type: "text",
+        default: "reimagined",
+      },
+      {
+        key: "description",
+        label: "Description",
+        type: "textarea",
+        default:
+          "For a limited season, our signature seating and hand-built casegoods are offered with white-glove delivery included — and up to a quarter off the collection.",
+      },
+      {
+        key: "cta_primary_text",
+        label: "Primary Button Text",
+        type: "text",
+        default: "Shop the event",
+      },
+      {
+        key: "cta_primary_href",
+        label: "Primary Button Link",
+        type: "text",
+        default: "/products?is_best_seller=true",
+      },
+      {
+        key: "cta_secondary_text",
+        label: "Secondary Button Text",
+        type: "text",
+        default: "Book a consultation",
+      },
+      {
+        key: "cta_secondary_href",
+        label: "Secondary Button Link",
+        type: "text",
+        default: "/about",
+      },
+      {
+        key: "image",
+        label: "Image URL",
+        type: "url",
+        default:
+          "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1400",
+      },
+      {
+        key: "discount_percent",
+        label: "Discount Percent",
+        type: "number",
+        default: 25,
+      },
+      {
+        key: "from_price",
+        label: "From Price",
+        type: "text",
+        default: "₹38,000",
+      },
+      {
+        key: "footnote",
+        label: "Footnote",
+        type: "text",
+        default: "Ends this season · Terms apply",
+      },
     ],
   },
   {
-    key: 'seo_defaults',
-    label: 'SEO Defaults',
+    key: "store_info",
+    label: "Store Information",
     fields: [
-      { key: 'title', label: 'Default Meta Title', type: 'text' },
-      { key: 'description', label: 'Default Meta Description', type: 'textarea' },
-      { key: 'keywords', label: 'Default Keywords (comma separated)', type: 'text' },
+      { key: "name", label: "Store Name", type: "text" },
+      { key: "tagline", label: "Tagline", type: "text" },
+      { key: "description", label: "Description", type: "textarea" },
+      { key: "phone", label: "Phone", type: "text" },
+      { key: "email", label: "Email", type: "email" },
+      { key: "address", label: "Address", type: "textarea" },
     ],
   },
   {
-    key: 'social_links',
-    label: 'Social Links',
+    key: "seo_defaults",
+    label: "SEO Defaults",
     fields: [
-      { key: 'facebook', label: 'Facebook URL', type: 'url' },
-      { key: 'instagram', label: 'Instagram URL', type: 'url' },
-      { key: 'youtube', label: 'YouTube URL', type: 'url' },
-      { key: 'pinterest', label: 'Pinterest URL', type: 'url' },
+      { key: "title", label: "Default Meta Title", type: "text" },
+      {
+        key: "description",
+        label: "Default Meta Description",
+        type: "textarea",
+      },
+      {
+        key: "keywords",
+        label: "Default Keywords (comma separated)",
+        type: "text",
+      },
     ],
   },
   {
-    key: 'contact_info',
-    label: 'Contact Information',
+    key: "social_links",
+    label: "Social Links",
     fields: [
-      { key: 'whatsapp', label: 'WhatsApp Number', type: 'text' },
-      { key: 'whatsapp_message', label: 'WhatsApp Default Message', type: 'text' },
-      { key: 'call_phone', label: 'Call Phone', type: 'text' },
-      { key: 'business_hours', label: 'Business Hours', type: 'text' },
+      { key: "facebook", label: "Facebook URL", type: "url" },
+      { key: "instagram", label: "Instagram URL", type: "url" },
+      { key: "youtube", label: "YouTube URL", type: "url" },
+      { key: "pinterest", label: "Pinterest URL", type: "url" },
     ],
   },
   {
-    key: 'payment',
-    label: 'Payment Settings',
+    key: "contact_info",
+    label: "Contact Information",
     fields: [
-      { key: 'accepted_methods', label: 'Accepted Payment Methods (comma separated)', type: 'text' },
-      { key: 'cod_available', label: 'Cash on Delivery Available', type: 'checkbox' },
-      { key: 'upi_id', label: 'UPI ID', type: 'text' },
-      { key: 'bank_name', label: 'Bank Name', type: 'text' },
-      { key: 'account_number', label: 'Account Number', type: 'text' },
-      { key: 'ifsc_code', label: 'IFSC Code', type: 'text' },
-      { key: 'account_holder', label: 'Account Holder Name', type: 'text' },
+      { key: "whatsapp", label: "WhatsApp Number", type: "text" },
+      {
+        key: "whatsapp_message",
+        label: "WhatsApp Default Message",
+        type: "text",
+      },
+      { key: "call_phone", label: "Call Phone", type: "text" },
+      { key: "business_hours", label: "Business Hours", type: "text" },
     ],
   },
   {
-    key: 'footer',
-    label: 'Footer',
+    key: "payment",
+    label: "Payment Settings",
     fields: [
-      { key: 'copyright', label: 'Copyright Text', type: 'text' },
-      { key: 'description', label: 'Footer Description', type: 'textarea' },
+      {
+        key: "accepted_methods",
+        label: "Accepted Payment Methods (comma separated)",
+        type: "text",
+      },
+      {
+        key: "cod_available",
+        label: "Cash on Delivery Available",
+        type: "checkbox",
+      },
+      { key: "upi_id", label: "UPI ID", type: "text" },
+      { key: "bank_name", label: "Bank Name", type: "text" },
+      { key: "account_number", label: "Account Number", type: "text" },
+      { key: "ifsc_code", label: "IFSC Code", type: "text" },
+      { key: "account_holder", label: "Account Holder Name", type: "text" },
+    ],
+  },
+  {
+    key: "footer",
+    label: "Footer",
+    fields: [
+      { key: "copyright", label: "Copyright Text", type: "text" },
+      { key: "description", label: "Footer Description", type: "textarea" },
     ],
   },
 ];
@@ -77,10 +192,18 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
   const [form, setForm] = useState<Record<string, Record<string, unknown>>>(
     SECTIONS.reduce(
       (acc, section) => {
-        acc[section.key] = { ...section.fields.reduce((facc, f) => {
-          (facc as Record<string, unknown>)[f.key] = (initialData[section.key]?.[f.key] as string | boolean) || (f.type === 'checkbox' ? false : '');
-          return facc;
-        }, {} as Record<string, unknown>) };
+        acc[section.key] = section.fields.reduce(
+          (facc, f) => {
+            const saved = initialData[section.key]?.[f.key];
+            const fallback =
+              f.default ??
+              (f.type === "checkbox" ? false : f.type === "number" ? 0 : "");
+            facc[f.key] =
+              saved !== undefined && saved !== null ? saved : fallback;
+            return facc;
+          },
+          {} as Record<string, unknown>,
+        );
         return acc;
       },
       {} as Record<string, Record<string, unknown>>,
@@ -90,7 +213,11 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [savedSection, setSavedSection] = useState<string | null>(null);
 
-  const updateField = (section: string, key: string, value: string | boolean) => {
+  const updateField = (
+    section: string,
+    key: string,
+    value: string | number | boolean,
+  ) => {
     setForm((prev) => ({
       ...prev,
       [section]: { ...prev[section], [key]: value },
@@ -104,12 +231,12 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
 
     try {
       const res = await fetch(`/api/settings/${sectionKey}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ value: form[sectionKey] }),
       });
 
-      if (!res.ok) throw new Error('Failed to save');
+      if (!res.ok) throw new Error("Failed to save");
       setSavedSection(sectionKey);
       router.refresh();
     } catch {
@@ -119,12 +246,17 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
     }
   };
 
-  const inputClass = 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
-  const labelClass = 'text-sm font-medium leading-none';
+  const inputClass =
+    "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  const labelClass = "text-sm font-medium leading-none";
 
   return (
     <div className="space-y-8">
-      {error && <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>}
+      {error && (
+        <div className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       {SECTIONS.map((section) => (
         <div key={section.key} className="rounded-lg border bg-card p-6">
@@ -136,30 +268,59 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {section.fields.map((field) => (
-              <div key={field.key} className={`space-y-2 ${field.type === 'textarea' ? 'sm:col-span-2' : ''}`}>
+              <div
+                key={field.key}
+                className={`space-y-2 ${field.type === "textarea" ? "sm:col-span-2" : ""}`}
+              >
                 <label className={labelClass}>{field.label}</label>
-                {field.type === 'checkbox' ? (
+                {field.type === "checkbox" ? (
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
-                      checked={(form[section.key]?.[field.key] as boolean) || false}
-                      onChange={(e) => updateField(section.key, field.key, e.target.checked)}
+                      checked={
+                        (form[section.key]?.[field.key] as boolean) || false
+                      }
+                      onChange={(e) =>
+                        updateField(section.key, field.key, e.target.checked)
+                      }
                       className="h-4 w-4 rounded border-gray-300"
                     />
                     Enabled
                   </label>
-                ) : field.type === 'textarea' ? (
+                ) : field.type === "textarea" ? (
                   <textarea
                     className={`${inputClass} h-20 resize-none pt-2`}
-                    value={(form[section.key]?.[field.key] as string) || ''}
-                    onChange={(e) => updateField(section.key, field.key, e.target.value)}
+                    value={(form[section.key]?.[field.key] as string) || ""}
+                    onChange={(e) =>
+                      updateField(section.key, field.key, e.target.value)
+                    }
+                  />
+                ) : field.type === "number" ? (
+                  <input
+                    type="number"
+                    className={inputClass}
+                    value={
+                      form[section.key]?.[field.key] === "" ||
+                      form[section.key]?.[field.key] === undefined
+                        ? ""
+                        : (form[section.key]?.[field.key] as number)
+                    }
+                    onChange={(e) =>
+                      updateField(
+                        section.key,
+                        field.key,
+                        e.target.value === "" ? "" : Number(e.target.value),
+                      )
+                    }
                   />
                 ) : (
                   <input
-                    type={field.type || 'text'}
+                    type={field.type || "text"}
                     className={inputClass}
-                    value={(form[section.key]?.[field.key] as string) || ''}
-                    onChange={(e) => updateField(section.key, field.key, e.target.value)}
+                    value={(form[section.key]?.[field.key] as string) || ""}
+                    onChange={(e) =>
+                      updateField(section.key, field.key, e.target.value)
+                    }
                   />
                 )}
               </div>
@@ -172,7 +333,7 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
               disabled={loading}
               className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {loading ? 'Saving...' : `Save ${section.label}`}
+              {loading ? "Saving..." : `Save ${section.label}`}
             </button>
           </div>
         </div>

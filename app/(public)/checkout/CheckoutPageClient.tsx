@@ -102,7 +102,7 @@ export default function CheckoutPageClient() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 pt-24 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-4xl px-4 py-8 pt-44 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-bold tracking-tight">Checkout</h1>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-5">

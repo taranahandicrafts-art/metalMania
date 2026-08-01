@@ -3,7 +3,7 @@ import { connectDB } from '@/lib/db';
 import Settings from '@/models/Settings';
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ key: string }> },
 ) {
   const { key } = await params;
@@ -14,5 +14,20 @@ export async function GET(
     return NextResponse.json(setting);
   } catch {
     return NextResponse.json({ error: 'Failed to fetch setting' }, { status: 500 });
+  }
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ key: string }> },
+) {
+  const { key } = await params;
+  try {
+    await connectDB();
+    const { value } = await req.json();
+    const setting = await Settings.upsert(key as import('@/types').SettingsKey, value);
+    return NextResponse.json(setting);
+  } catch {
+    return NextResponse.json({ error: 'Failed to save setting' }, { status: 500 });
   }
 }

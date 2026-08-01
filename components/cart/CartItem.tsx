@@ -14,7 +14,7 @@ export function CartItem({ item }: { item: CartItemType }) {
     <div className="flex gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/30 sm:gap-6">
       <Link
         href={`/products/${item.product_id}`}
-        className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border sm:h-28 sm:w-28"
+        className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border sm:h-28 sm:w-28"
       >
         {item.thumbnail ? (
                           <Image
