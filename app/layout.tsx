@@ -50,6 +50,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <head>
+        {/* Warm up the connection to the image CDN so hero/product images
+            start downloading as early as possible. */}
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+      </head>
       <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>
