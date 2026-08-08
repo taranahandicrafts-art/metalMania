@@ -17,7 +17,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   productAds,
   saleBarSettings,
 }) => (
-  <div className="mt-41.5 bg-white font-sans text-neutral-900 antialiased">
+  <div className="pt-50 md:pt-44 bg-white font-sans text-neutral-900 antialiased">
     <CategoryNav categories={categories} />
     <Showcase slides={carouselSlides} ads={productAds} />
     <SaleBar settings={saleBarSettings} />

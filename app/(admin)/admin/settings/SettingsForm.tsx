@@ -7,7 +7,24 @@ interface SettingsFormProps {
   initialData: Record<string, Record<string, unknown>>;
 }
 
-type FieldType = "text" | "textarea" | "email" | "url" | "checkbox" | "number";
+type FieldType =
+  | "text"
+  | "textarea"
+  | "email"
+  | "url"
+  | "checkbox"
+  | "number"
+  | "image-upload";
+
+function normalizeGoogleDriveUrl(url: string): string {
+  const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileMatch) return `https://lh3.googleusercontent.com/d/${fileMatch[1]}`;
+  const idMatch = url.match(
+    /drive\.google\.com\/(?:open|uc)\?[^"]*[?&]id=([a-zA-Z0-9_-]+)/,
+  );
+  if (idMatch) return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+  return url;
+}
 
 interface SectionField {
   key: string;
@@ -78,8 +95,8 @@ const SECTIONS: Section[] = [
       },
       {
         key: "image",
-        label: "Image URL",
-        type: "url",
+        label: "Banner Image",
+        type: "image-upload",
         default:
           "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1400",
       },
@@ -103,88 +120,88 @@ const SECTIONS: Section[] = [
       },
     ],
   },
-  {
-    key: "store_info",
-    label: "Store Information",
-    fields: [
-      { key: "name", label: "Store Name", type: "text" },
-      { key: "tagline", label: "Tagline", type: "text" },
-      { key: "description", label: "Description", type: "textarea" },
-      { key: "phone", label: "Phone", type: "text" },
-      { key: "email", label: "Email", type: "email" },
-      { key: "address", label: "Address", type: "textarea" },
-    ],
-  },
-  {
-    key: "seo_defaults",
-    label: "SEO Defaults",
-    fields: [
-      { key: "title", label: "Default Meta Title", type: "text" },
-      {
-        key: "description",
-        label: "Default Meta Description",
-        type: "textarea",
-      },
-      {
-        key: "keywords",
-        label: "Default Keywords (comma separated)",
-        type: "text",
-      },
-    ],
-  },
-  {
-    key: "social_links",
-    label: "Social Links",
-    fields: [
-      { key: "facebook", label: "Facebook URL", type: "url" },
-      { key: "instagram", label: "Instagram URL", type: "url" },
-      { key: "youtube", label: "YouTube URL", type: "url" },
-      { key: "pinterest", label: "Pinterest URL", type: "url" },
-    ],
-  },
-  {
-    key: "contact_info",
-    label: "Contact Information",
-    fields: [
-      { key: "whatsapp", label: "WhatsApp Number", type: "text" },
-      {
-        key: "whatsapp_message",
-        label: "WhatsApp Default Message",
-        type: "text",
-      },
-      { key: "call_phone", label: "Call Phone", type: "text" },
-      { key: "business_hours", label: "Business Hours", type: "text" },
-    ],
-  },
-  {
-    key: "payment",
-    label: "Payment Settings",
-    fields: [
-      {
-        key: "accepted_methods",
-        label: "Accepted Payment Methods (comma separated)",
-        type: "text",
-      },
-      {
-        key: "cod_available",
-        label: "Cash on Delivery Available",
-        type: "checkbox",
-      },
-      { key: "upi_id", label: "UPI ID", type: "text" },
-      { key: "bank_name", label: "Bank Name", type: "text" },
-      { key: "account_number", label: "Account Number", type: "text" },
-      { key: "ifsc_code", label: "IFSC Code", type: "text" },
-      { key: "account_holder", label: "Account Holder Name", type: "text" },
-    ],
-  },
-  {
-    key: "footer",
-    label: "Footer",
-    fields: [
-      { key: "copyright", label: "Copyright Text", type: "text" },
-      { key: "description", label: "Footer Description", type: "textarea" },
-    ],
-  },
+  // {
+  //   key: "store_info",
+  //   label: "Store Information",
+  //   fields: [
+  //     { key: "name", label: "Store Name", type: "text" },
+  //     { key: "tagline", label: "Tagline", type: "text" },
+  //     { key: "description", label: "Description", type: "textarea" },
+  //     { key: "phone", label: "Phone", type: "text" },
+  //     { key: "email", label: "Email", type: "email" },
+  //     { key: "address", label: "Address", type: "textarea" },
+  //   ],
+  // },
+  // {
+  //   key: "seo_defaults",
+  //   label: "SEO Defaults",
+  //   fields: [
+  //     { key: "title", label: "Default Meta Title", type: "text" },
+  //     {
+  //       key: "description",
+  //       label: "Default Meta Description",
+  //       type: "textarea",
+  //     },
+  //     {
+  //       key: "keywords",
+  //       label: "Default Keywords (comma separated)",
+  //       type: "text",
+  //     },
+  //   ],
+  // },
+  // {
+  //   key: "social_links",
+  //   label: "Social Links",
+  //   fields: [
+  //     { key: "facebook", label: "Facebook URL", type: "url" },
+  //     { key: "instagram", label: "Instagram URL", type: "url" },
+  //     { key: "youtube", label: "YouTube URL", type: "url" },
+  //     { key: "pinterest", label: "Pinterest URL", type: "url" },
+  //   ],
+  // },
+  // {
+  //   key: "contact_info",
+  //   label: "Contact Information",
+  //   fields: [
+  //     { key: "whatsapp", label: "WhatsApp Number", type: "text" },
+  //     {
+  //       key: "whatsapp_message",
+  //       label: "WhatsApp Default Message",
+  //       type: "text",
+  //     },
+  //     { key: "call_phone", label: "Call Phone", type: "text" },
+  //     { key: "business_hours", label: "Business Hours", type: "text" },
+  //   ],
+  // },
+  // {
+  //   key: "payment",
+  //   label: "Payment Settings",
+  //   fields: [
+  //     {
+  //       key: "accepted_methods",
+  //       label: "Accepted Payment Methods (comma separated)",
+  //       type: "text",
+  //     },
+  //     {
+  //       key: "cod_available",
+  //       label: "Cash on Delivery Available",
+  //       type: "checkbox",
+  //     },
+  //     { key: "upi_id", label: "UPI ID", type: "text" },
+  //     { key: "bank_name", label: "Bank Name", type: "text" },
+  //     { key: "account_number", label: "Account Number", type: "text" },
+  //     { key: "ifsc_code", label: "IFSC Code", type: "text" },
+  //     { key: "account_holder", label: "Account Holder Name", type: "text" },
+  //   ],
+  // },
+  // {
+  //   key: "footer",
+  //   label: "Footer",
+  //   fields: [
+  //     { key: "copyright", label: "Copyright Text", type: "text" },
+  //     { key: "description", label: "Footer Description", type: "textarea" },
+  //   ],
+  // },
 ];
 
 export function SettingsForm({ initialData }: SettingsFormProps) {
@@ -212,6 +229,30 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedSection, setSavedSection] = useState<string | null>(null);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
+
+  const handleLocalUpload = async (
+    sectionKey: string,
+    fieldKey: string,
+    file: File,
+  ) => {
+    const uid = `${sectionKey}.${fieldKey}`;
+    setUploadingField(uid);
+    setError(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "settings");
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      updateField(sectionKey, fieldKey, data.secure_url as string);
+    } catch {
+      setError("Image upload failed. Please try again.");
+    } finally {
+      setUploadingField(null);
+    }
+  };
 
   const updateField = (
     section: string,
@@ -270,7 +311,7 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
             {section.fields.map((field) => (
               <div
                 key={field.key}
-                className={`space-y-2 ${field.type === "textarea" ? "sm:col-span-2" : ""}`}
+                className={`space-y-2 ${field.type === "textarea" || field.type === "image-upload" ? "sm:col-span-2" : ""}`}
               >
                 <label className={labelClass}>{field.label}</label>
                 {field.type === "checkbox" ? (
@@ -287,6 +328,51 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
                     />
                     Enabled
                   </label>
+                ) : field.type === "image-upload" ? (
+                  <div className="space-y-3">
+                    {!!form[section.key]?.[field.key] && (
+                      <div className="relative h-[300px] overflow-hidden rounded-md border bg-muted">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={normalizeGoogleDriveUrl(
+                            String(form[section.key][field.key]),
+                          )}
+                          alt="Preview"
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                    )}
+                    <input
+                      type="text"
+                      className={inputClass}
+                      placeholder="Paste image URL or Google Drive share link…"
+                      value={
+                        (form[section.key]?.[field.key] as string) || ""
+                      }
+                      onChange={(e) =>
+                        updateField(section.key, field.key, e.target.value)
+                      }
+                    />
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-xs font-medium hover:bg-accent">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file)
+                            handleLocalUpload(section.key, field.key, file);
+                          e.target.value = "";
+                        }}
+                      />
+                      {uploadingField === `${section.key}.${field.key}`
+                        ? "Uploading…"
+                        : "Upload from device"}
+                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      Google Drive share links are automatically converted.
+                    </p>
+                  </div>
                 ) : field.type === "textarea" ? (
                   <textarea
                     className={`${inputClass} h-20 resize-none pt-2`}

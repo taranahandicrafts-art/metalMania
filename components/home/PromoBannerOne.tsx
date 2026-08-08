@@ -1,6 +1,16 @@
 import Image from 'next/image';
 import { Reveal, LuxButton } from './shared';
 
+function normalizeGoogleDriveUrl(url: string): string {
+  const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (fileMatch) return `https://lh3.googleusercontent.com/d/${fileMatch[1]}`;
+  const idMatch = url.match(
+    /drive\.google\.com\/(?:open|uc)\?[^"]*[?&]id=([a-zA-Z0-9_-]+)/,
+  );
+  if (idMatch) return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+  return url;
+}
+
 export interface PromoBannerSettings {
   eyebrow?: string;
   title?: string;
@@ -93,7 +103,7 @@ export function PromoBannerOne({ settings }: PromoBannerOneProps) {
         <Reveal direction="left" delay={0.1} className="relative">
           <div className="relative mx-auto aspect-4/5 w-full max-w-md overflow-hidden rounded-4xl bg-lux-ivory shadow-[0_40px_80px_-40px_rgba(26,23,20,0.5)]">
             <Image
-              src={s.image}
+              src={normalizeGoogleDriveUrl(s.image)}
               alt="Curated living room setting"
               fill
               sizes="(max-width: 1024px) 80vw, 40vw"

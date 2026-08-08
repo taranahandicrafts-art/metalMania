@@ -146,7 +146,7 @@ export default async function ProductsPage({ searchParams }: Props) {
     <>
       <JsonLd schema={breadcrumbSchema(breadcrumbs)} />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 pt-44 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 pt-50 sm:px-6 lg:px-8">
         {/* Full-width category strip: All → categories */}
         <Suspense fallback={<div className="h-14 border-b border-neutral-200" />}>
           <CategoryNav

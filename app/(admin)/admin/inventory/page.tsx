@@ -58,7 +58,13 @@ export default async function AdminInventoryPage() {
           <h3 className="font-semibold">Stock Adjustments</h3>
         </div>
         <div className="p-4">
-          <InventoryClient />
+          <InventoryClient
+            products={products.map((p) => ({
+              id: (p._id as unknown as { toString(): string }).toString(),
+              title: p.title,
+              sku: p.sku,
+            }))}
+          />
         </div>
       </div>
 

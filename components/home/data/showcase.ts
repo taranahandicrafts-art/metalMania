@@ -38,7 +38,6 @@ export const BANKS: Bank[] = [
 export const ANNOUNCEMENTS: Announcement[] = [
   { id: 'a1', highlight: 'NEW ARRIVALS', text: 'Fresh designs for the season — explore now', href: '/products?new=true', buttonLabel: 'Shop New' },
   { id: 'a2', highlight: 'FREE DELIVERY', text: 'On all orders over ₹5,000 across India', href: '/shipping', buttonLabel: 'Details' },
-  { id: 'a3', highlight: 'EASY RETURNS', text: '30-day hassle-free returns on stock items', href: '/returns', buttonLabel: 'Policy' },
 ];
 
 export const CONTACT: ContactLink & {
@@ -56,11 +55,11 @@ export const CONTACT: ContactLink & {
   icon: null as any,
   phoneHref: 'tel:+919876543210',
   phoneDisplay: '+91 98765 43210',
-  emailHref: 'mailto:hello@furniturestore.com',
-  emailDisplay: 'hello@furniturestore.com',
+  emailHref: 'mailto:Jangidvikas5524@gmail.com',
+  emailDisplay: 'Jangidvikas5524@gmail.com',
   whatsappHref: 'https://wa.me/919876543210',
-  facebookHref: 'https://facebook.com/furniturestore',
-  instagramHref: 'https://instagram.com/furniturestore',
+  facebookHref: 'https://facebook.com/metal_maniahub/',
+  instagramHref: 'https://www.instagram.com/metal_maniahub/',
 };
 
 /** Sale ends 1d 17h 3m 18s from mount (matches the reference). */

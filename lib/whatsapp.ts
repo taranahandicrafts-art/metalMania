@@ -37,29 +37,29 @@ interface BuildOrderMessageParams {
   orderNumber?: string;
 }
 
-function formatItemLine(
-  item: OrderItemInput,
-  index: number,
-): string {
+const SEP = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+
+function formatDate(): string {
+  const now = new Date();
+  return now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function formatItemLine(item: OrderItemInput, index: number): string {
   const lineTotal = item.unit_price * item.quantity;
-  let line = `${index + 1}. ${item.title}`;
-  if (item.variant_id) {
-    line += ` [Variant]`;
-  }
-  line += `\n   SKU: ${item.sku}`;
-  line += `\n   Qty: ${item.quantity} × ${formatPrice(item.unit_price)} = ${formatPrice(lineTotal)}`;
+  let line = `${index + 1}. *${item.title}*`;
+  if (item.variant_id) line += ` [Variant]`;
+  line += `\n   SKU : ${item.sku}`;
+  line += `\n   Qty : ${item.quantity} × ${formatPrice(item.unit_price)} = ${formatPrice(lineTotal)}`;
   return line;
 }
 
 function formatAddressBlock(addr: OrderAddressInput): string {
   const parts: string[] = [];
-  parts.push(addr.name);
-  if (addr.phone) parts.push(`📞 ${addr.phone}`);
-  if (addr.email) parts.push(`✉️ ${addr.email}`);
-  parts.push(`📍 ${addr.line1}`);
-  if (addr.line2) parts.push(`   ${addr.line2}`);
-  parts.push(`   ${addr.city} - ${addr.pincode}`);
-  parts.push(`   ${addr.state}, ${addr.country || 'India'}`);
+  parts.push(`*${addr.name}*`);
+  const addressLine = [addr.line1, addr.line2].filter(Boolean).join(', ');
+  parts.push(addressLine);
+  parts.push(`${addr.city} - ${addr.pincode}`);
+  parts.push(`${addr.state}, ${addr.country || 'India'}`);
   return parts.join('\n');
 }
 
@@ -75,24 +75,35 @@ export function buildWhatsAppOrderMessage({
   const orderNum = orderNumber || generateOrderNumber();
   const lines: string[] = [];
 
-  lines.push(`🛒 *NEW ORDER* — ${SITE_NAME}`);
-  lines.push(`Order #: ${orderNum}`);
+  lines.push(`╔══════════════════════════════╗`);
+  lines.push(`        🛋️ *NEW ORDER RECEIVED*`);
+  lines.push(`        ${SITE_NAME}`);
+  lines.push(`╚══════════════════════════════╝`);
+  lines.push('');
+  lines.push(`📋 *Order ID :* ${orderNum}`);
+  lines.push(`📅 *Date     :* ${formatDate()}`);
   lines.push('');
 
-  lines.push('👤 *CUSTOMER*');
-  lines.push(`Name:  ${address.name}`);
-  lines.push(`Phone: ${address.phone}`);
-  if (address.email) lines.push(`Email: ${address.email}`);
+  lines.push(SEP);
+  lines.push('👤 *CUSTOMER DETAILS*');
+  lines.push(SEP);
+  lines.push(`Name  : ${address.name}`);
+  lines.push(`Phone : ${address.phone}`);
+  if (address.email) lines.push(`Email : ${address.email}`);
   lines.push('');
 
-  lines.push('📦 *ITEMS*');
+  lines.push(SEP);
+  lines.push('🛒 *ORDER ITEMS*');
+  lines.push(SEP);
   items.forEach((item, i) => {
     lines.push(formatItemLine(item, i));
   });
   lines.push('');
 
-  lines.push('💰 *SUMMARY*');
-  lines.push(`Subtotal:     ${formatPrice(subtotal)}`);
+  lines.push(SEP);
+  lines.push('💰 *PAYMENT SUMMARY*');
+  lines.push(SEP);
+  lines.push(`Subtotal  :  ${formatPrice(subtotal)}`);
   if (discount && discount.amount > 0) {
     const discountLabel =
       discount.type === 'percentage'
@@ -100,25 +111,29 @@ export function buildWhatsAppOrderMessage({
         : discount.type === 'flat'
           ? 'FLAT DISCOUNT'
           : 'DISCOUNT';
-    lines.push(`Discount:    -${formatPrice(discount.amount)} (${discountLabel})`);
+    lines.push(`Discount  : -${formatPrice(discount.amount)} (${discountLabel})`);
   }
-  lines.push('──────────────────────────────');
-  lines.push(`*TOTAL:*      ${formatPrice(total)}`);
+  lines.push(`*TOTAL    :  ${formatPrice(total)}*`);
   lines.push('');
 
+  lines.push(SEP);
   lines.push('📍 *DELIVERY ADDRESS*');
+  lines.push(SEP);
   lines.push(formatAddressBlock(address));
   lines.push('');
 
   if (notes) {
-    lines.push('📝 *NOTES*');
+    lines.push(SEP);
+    lines.push('📝 *SPECIAL NOTES*');
+    lines.push(SEP);
     lines.push(notes);
     lines.push('');
   }
 
-  lines.push('──────────────────────────────');
-  lines.push(`Thank you for your order!`);
-  lines.push(`We will confirm it shortly.`);
+  lines.push(SEP);
+  lines.push(`✅ Order received successfully.`);
+  lines.push(`We'll confirm & share delivery details shortly.`);
+  lines.push(`Thank you for shopping with us! 🙏`);
 
   return lines.join('\n');
 }

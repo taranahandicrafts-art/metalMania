@@ -36,7 +36,7 @@ export default async function ContactPage() {
   ];
 
   return (
-    <>
+    <div className="pt-16">
       <JsonLd schema={[
         breadcrumbSchema(breadcrumbs),
         ...(localBizSchema ? [localBizSchema] : []),
@@ -55,6 +55,6 @@ export default async function ContactPage() {
 
       <BusinessHours />
       <Showroom />
-    </>
+    </div>
   );
 }

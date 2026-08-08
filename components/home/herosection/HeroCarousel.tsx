@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { SLIDES } from '../data/showcase';
-import { CarouselSlide } from '../types';
-import { ChevronLeft, ChevronRight } from './icons';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { SLIDES } from "../data/showcase";
+import { CarouselSlide } from "../types";
+import { ChevronLeft, ChevronRight } from "./icons";
 
 interface HeroCarouselProps {
   slides?: CarouselSlide[];
@@ -19,13 +19,19 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const total = slides.length;
 
-  const goTo = useCallback((n: number) => setIndex((n + total) % total), [total]);
+  const goTo = useCallback(
+    (n: number) => setIndex((n + total) % total),
+    [total],
+  );
   const next = useCallback(() => goTo(index + 1), [goTo, index]);
   const prev = useCallback(() => goTo(index - 1), [goTo, index]);
 
   const restart = useCallback(() => {
     if (timer.current) clearInterval(timer.current);
-    timer.current = setInterval(() => setIndex((i) => (i + 1) % total), autoPlayMs);
+    timer.current = setInterval(
+      () => setIndex((i) => (i + 1) % total),
+      autoPlayMs,
+    );
   }, [autoPlayMs, total]);
 
   useEffect(() => {
@@ -54,39 +60,51 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
                 src={s.image}
                 alt={s.subtitle}
                 className="absolute inset-0 h-full w-full object-cover"
-                loading={i === 0 ? 'eager' : 'lazy'}
-                fetchPriority={i === 0 ? 'high' : 'auto'}
+                loading={i === 0 ? "eager" : "lazy"}
+                fetchPriority={i === 0 ? "high" : "auto"}
                 decoding="async"
               />
             )}
             {/* Left-to-right dark scrim for legibility */}
             <div className="absolute inset-0 bg-linear-to-r from-[#3c2a1c]/60 via-[#3c2a1c]/20 to-transparent" />
             <div className="absolute left-0 top-0 max-w-[62%] p-8 text-white drop-shadow-[0_1px_12px_rgba(0,0,0,0.25)] sm:p-12">
-              <h2 className="font-serif text-[clamp(30px,5vw,58px)] font-normal leading-[0.98] tracking-wide">
+              <h2 className="font-serif text-2xl lg:text-4xl font-normal leading-[0.98] tracking-wide">
                 {s.titleLine1}
-                {s.titleLine2 && <><br />{s.titleLine2} </>}
+                {s.titleLine2 && (
+                  <>
+                    <br />
+                    {s.titleLine2}{" "}
+                  </>
+                )}
                 {!s.titleLine2 && <br />}
-                <span className="italic text-[#f2c14e]">{s.accentWord}</span>
               </h2>
-              <div className="mt-4 text-[clamp(15px,1.6vw,20px)] font-medium">{s.subtitle}</div>
-              <span className="mt-3 inline-block rounded bg-[#3c2a1c]/70 px-4 py-2 text-[clamp(15px,1.8vw,22px)] font-semibold">
+              <div className="mt-4 text-sm md:text-lg font-medium">
+                {s.subtitle}
+              </div>
+              <span className="mt-3 inline-block rounded bg-[#3c2a1c]/70 px-4 py-2 text-sm md:text-lg font-semibold">
                 {s.price}
               </span>
               {s.slug && (
                 <div className="mt-4">
                   <Link
                     href={`/products/${s.slug}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#f2c14e] px-5 py-2.5 text-sm font-semibold text-[#3c2a1c] transition-opacity hover:opacity-90"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#f2c14e] px-5 py-2.5 text-xs md:text-sm font-semibold text-[#3c2a1c] transition-opacity hover:opacity-90"
                   >
                     Shop Now
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
                       <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
                   </Link>
                 </div>
               )}
             </div>
-            {s.terms && <span className="absolute bottom-5 left-6 text-xs text-white/85">{s.terms}</span>}
           </div>
         ))}
       </div>
@@ -115,9 +133,11 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
             aria-label={`Go to slide ${i + 1}`}
             onClick={withRestart(() => goTo(i))}
             className={[
-              'h-2.5 rounded-full transition-all',
-              i === index ? 'w-6 bg-white' : 'w-2.5 bg-white/50 hover:bg-white/80',
-            ].join(' ')}
+              "h-2.5 rounded-full transition-all",
+              i === index
+                ? "w-6 bg-white"
+                : "w-2.5 bg-white/50 hover:bg-white/80",
+            ].join(" ")}
           />
         ))}
       </div>

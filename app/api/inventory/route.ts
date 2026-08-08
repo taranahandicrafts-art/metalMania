@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Inventory from '@/models/Inventory';
+import Product from '@/models/Product';
 import { mongoErrorMessage, isClientError } from '@/lib/api-error';
 
 export async function GET(req: NextRequest) {
@@ -32,14 +33,23 @@ export async function POST(req: NextRequest) {
         await existing.save();
         return NextResponse.json(existing);
       }
-      // A stock adjustment references a SKU with no inventory record, and we
-      // cannot create one without a product. Report the real reason instead of
-      // failing silently on a malformed create.
-      if (!body.product_id) {
-        return NextResponse.json(
-          { error: `No inventory record found for SKU "${body.sku.toUpperCase()}". Create the product first.` },
-          { status: 404 },
-        );
+      // No inventory record yet — look up the product by SKU and auto-create one.
+      const productId = body.product_id;
+      if (!productId) {
+        const product = await Product.findOne({ sku: body.sku.toUpperCase() }).lean();
+        if (!product) {
+          return NextResponse.json(
+            { error: `No product found for SKU "${body.sku.toUpperCase()}". Create the product first.` },
+            { status: 404 },
+          );
+        }
+        const initialStock = Math.max(0, Number(body.quantity));
+        const newRecord = await Inventory.create({
+          product_id: product._id,
+          sku: body.sku.toUpperCase(),
+          stock: initialStock,
+        });
+        return NextResponse.json(newRecord, { status: 201 });
       }
     }
 

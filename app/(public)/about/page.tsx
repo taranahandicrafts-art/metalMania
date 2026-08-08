@@ -41,7 +41,7 @@ const aboutPageSchema = {
     'Discover the story behind our premium handcrafted furniture brand. Learn about our 15-year legacy of craftsmanship, sustainability, and commitment to creating timeless pieces for your home.',
   mainEntity: {
     '@type': 'Organization',
-    name: 'Furniture Store',
+    name: 'Shubharambh Products',
     foundingDate: '2008',
     description:
       'Premium handcrafted furniture designed for lasting beauty and everyday comfort.',

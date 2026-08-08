@@ -49,18 +49,20 @@ const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
         </button>
 
         {/* Sliding track */}
-        <div className="relative h-5 w-full max-w-2xl overflow-hidden">
+        <div className="relative w-full max-w-2xl overflow-hidden">
           <div
             className="flex transition-transform duration-500 ease-out"
             style={{ transform: `translateX(-${index * 100}%)` }}
           >
             {items.map((a) => (
-              <div key={a.id} className="flex min-w-full items-center justify-center gap-2 whitespace-nowrap text-[13px] sm:text-sm">
-                {a.highlight && <span className="font-bold uppercase tracking-wide text-white">{a.highlight}</span>}
-                <span className="text-[#efe7d8]/90">{a.text}</span>
+              <div key={a.id} className="flex min-w-full flex-col items-center gap-y-1 py-0.5 text-[13px] sm:flex-row sm:flex-nowrap sm:gap-x-2 sm:py-0 sm:text-sm">
+                <span className="flex items-center justify-center gap-2 text-center leading-snug">
+                  {a.highlight && <span className="font-bold uppercase tracking-wide text-white">{a.highlight}</span>}
+                  <span className="text-[#efe7d8]/90">{a.text}</span>
+                </span>
                 <a
                   href={a.href}
-                  className="ml-1 rounded-full bg-[#e8ddc7] px-3 py-0.5 text-[11px] font-bold uppercase tracking-wide text-neutral-900 transition hover:bg-white"
+                  className="shrink-0 rounded-full bg-[#e8ddc7] px-3 py-0.5 text-[11px] font-bold uppercase tracking-wide text-neutral-900 transition hover:bg-white"
                 >
                   {a.buttonLabel}
                 </a>

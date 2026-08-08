@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from "next/image";
 
 export function Showroom() {
   return (
@@ -22,7 +22,14 @@ export function Showroom() {
             <div className="mt-8 space-y-4">
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center text-[#B8956A]">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                     <circle cx="12" cy="10" r="3" />
                   </svg>
@@ -30,15 +37,23 @@ export function Showroom() {
                 <div>
                   <p className="font-medium text-[#1A1714]">Address</p>
                   <p className="text-sm text-[#7A7570]">
-                    12, Furniture Lane, Industrial Area<br />
-                    Pune, Maharashtra 411001, India
+                    3 Mohan nagar behind Balaji paradise Sikar road haramara{" "}
+                    <br />
+                    Jaipur, Rajasthan 302013, India
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center text-[#B8956A]">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
                     <rect x="1" y="3" width="15" height="13" />
                     <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
                     <circle cx="5.5" cy="18.5" r="2.5" />
@@ -56,7 +71,14 @@ export function Showroom() {
 
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center text-[#B8956A]">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                   </svg>
@@ -79,7 +101,7 @@ export function Showroom() {
             <div className="relative aspect-[4/3] w-full bg-[#E8E2D9]/30">
               <Image
                 src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800"
-                alt="Furniture Store showroom interior"
+                alt="Shubharambh Products showroom interior"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"

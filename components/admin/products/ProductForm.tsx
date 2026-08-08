@@ -94,12 +94,6 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
   const [relatedIds, setRelatedIds] = useState<string[]>(
     ((initialData?.related_product_ids || []) as string[]).map((id: string | { toString(): string }) => (typeof id === 'string' ? id : (id as unknown as { toString(): string }).toString())),
   );
-  const [crossSellIds, setCrossSellIds] = useState<string[]>(
-    ((initialData?.cross_sell_product_ids || []) as string[]).map((id: string | { toString(): string }) => (typeof id === 'string' ? id : (id as unknown as { toString(): string }).toString())),
-  );
-  const [upsellIds, setUpsellIds] = useState<string[]>(
-    ((initialData?.upsell_product_ids || []) as string[]).map((id: string | { toString(): string }) => (typeof id === 'string' ? id : (id as unknown as { toString(): string }).toString())),
-  );
 
   const finalPrice = form.base_price - (form.base_price * form.discount) / 100;
 
@@ -202,8 +196,6 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
         },
         tags,
         related_product_ids: relatedIds,
-        cross_sell_product_ids: crossSellIds,
-        upsell_product_ids: upsellIds,
       };
 
       const url = isEditing ? `/api/products/${initialData?._id}` : '/api/products';
@@ -542,26 +534,12 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
 
       <div className={sectionClass}>
         <h3 className="text-lg font-semibold">Related Products</h3>
-        <div className="grid gap-6 sm:grid-cols-3">
-          <RelatedProductsSelector
-            label="Related Products"
-            field="related"
-            selectedIds={relatedIds}
-            onChange={(_field, ids) => setRelatedIds(ids)}
-          />
-          <RelatedProductsSelector
-            label="Cross-sell Products"
-            field="crosssell"
-            selectedIds={crossSellIds}
-            onChange={(_field, ids) => setCrossSellIds(ids)}
-          />
-          <RelatedProductsSelector
-            label="Upsell Products"
-            field="upsell"
-            selectedIds={upsellIds}
-            onChange={(_field, ids) => setUpsellIds(ids)}
-          />
-        </div>
+        <RelatedProductsSelector
+          label="Related Products"
+          field="related"
+          selectedIds={relatedIds}
+          onChange={(_field, ids) => setRelatedIds(ids)}
+        />
       </div>
 
       <div className={sectionClass}>

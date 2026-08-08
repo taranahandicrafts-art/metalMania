@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { SITE_NAME } from "@/lib/constants";
+import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { CartBadge } from "@/components/cart/CartBadge";
 import AnnouncementBar from "../home/herosection/AnnouncementBar";
 import { ContactHero } from "../contact";
@@ -83,65 +83,13 @@ export function Header() {
           scrolled ? "h-16" : "h-20",
         )}
       >
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-9 md:flex">
-          {NAV_LINKS.map((link) => {
-            const active = isActive(pathname, link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "group relative py-1 text-[0.72rem] font-medium uppercase tracking-[0.18em] transition-colors duration-300",
-                  textLight
-                    ? "text-lux-soft/80 hover:text-lux-soft"
-                    : "text-lux-graphite hover:text-lux-ink",
-                )}
-              >
-                {link.label}
-                <span
-                  className={cn(
-                    "absolute -bottom-0.5 left-0 h-px w-full origin-left bg-lux-gold transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                    active
-                      ? "scale-x-100"
-                      : "scale-x-0 group-hover:scale-x-100",
-                  )}
-                />
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Logo — absolutely centered so it stays in the middle regardless of nav/actions widths */}
-        <Link
-          href="/"
-          className={cn(
-            "group absolute left-1/2 z-50 -translate-x-1/2 font-display text-xl tracking-tight transition-colors duration-300 sm:text-2xl",
-            textLight ? "text-lux-soft" : "text-lux-ink",
-          )}
-        >
-          {SITE_NAME}
-          <span className="text-lux-gold">.</span>
-        </Link>
-
-        {/* Right actions */}
-        <div className="flex items-center gap-3 sm:gap-5">
-          <HeaderSearch textLight={textLight} className="hidden md:block" />
-
-          <span
-            className={cn(
-              "transition-colors duration-300",
-              textLight ? "text-lux-soft" : "text-lux-ink",
-            )}
-          >
-            <CartBadge />
-          </span>
-
-          {/* Mobile toggle */}
+        {/* Left: hamburger on mobile / nav on desktop */}
+        <div className="flex items-center">
+          {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen((v) => !v)}
             className={cn(
-              "relative z-50 flex h-9 w-9 flex-col items-center justify-center gap-[5px] md:hidden",
+              "relative z-50 flex h-9 w-9 flex-col items-center justify-center gap-[5px] lg:hidden",
               textLight ? "text-lux-soft" : "text-lux-ink",
             )}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -166,6 +114,73 @@ export function Header() {
               )}
             />
           </button>
+
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-9 lg:flex">
+            {NAV_LINKS.map((link) => {
+              const active = isActive(pathname, link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "group relative py-1 text-[0.72rem] font-medium uppercase tracking-[0.18em] transition-colors duration-300",
+                    textLight
+                      ? "text-lux-soft/80 hover:text-lux-soft"
+                      : "text-lux-graphite hover:text-lux-ink",
+                  )}
+                >
+                  {link.label}
+                  <span
+                    className={cn(
+                      "absolute -bottom-0.5 left-0 h-px w-full origin-left bg-lux-gold transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                      active
+                        ? "scale-x-100"
+                        : "scale-x-0 group-hover:scale-x-100",
+                    )}
+                  />
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Logo — absolutely centered */}
+        <Link
+          href="/"
+          className="group absolute left-1/2 z-50 -translate-x-1/2 flex flex-col items-center text-center transition-colors duration-300"
+        >
+          <span
+            className={cn(
+              "font-display text-xl leading-none tracking-tight sm:text-3xl",
+              textLight ? "text-lux-soft" : "text-lux-ink",
+            )}
+          >
+            {SITE_NAME}
+            <span className="text-lux-gold">.</span>
+          </span>
+          <span
+            className={cn(
+              "mt-0.5 text-[0.58rem] uppercase tracking-[0.18em] sm:text-[0.65rem]",
+              textLight ? "text-lux-soft/70" : "text-lux-graphite/80",
+            )}
+          >
+            {SITE_TAGLINE}
+          </span>
+        </Link>
+
+        {/* Right: search + cart */}
+        <div className="flex items-center gap-3 sm:gap-5">
+          <HeaderSearch textLight={textLight} />
+
+          <span
+            className={cn(
+              "transition-colors duration-300",
+              textLight ? "text-lux-soft" : "text-lux-ink",
+            )}
+          >
+            <CartBadge />
+          </span>
         </div>
       </div>
 
@@ -177,7 +192,7 @@ export function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-40 flex flex-col bg-lux-ink text-lux-soft md:hidden"
+            className="fixed inset-0 z-40 flex flex-col bg-lux-ink text-lux-soft lg:hidden"
           >
             <div className="lux-grain" />
             <div

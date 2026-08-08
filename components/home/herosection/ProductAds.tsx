@@ -5,7 +5,7 @@ import { ProductAd } from '../types';
 
 const AdCard: React.FC<{ ad: ProductAd }> = ({ ad }) => {
   const inner = (
-    <div className="group relative min-h-50 cursor-pointer overflow-hidden rounded-2xl shadow-xl">
+    <div className="group relative min-h-50 h-full cursor-pointer overflow-hidden rounded-2xl shadow-xl">
       <img
         src={ad.image || undefined}
         alt={ad.title}
@@ -30,13 +30,6 @@ const AdCard: React.FC<{ ad: ProductAd }> = ({ ad }) => {
           }, []) : ad.title}
         </h3>
 
-        {ad.subtitle && (
-          <p className={['mt-2 max-w-[60%] text-sm text-[#5a5044]', ad.italicSubtitle ? 'italic' : ''].join(' ')}>
-            {ad.subtitle}
-          </p>
-        )}
-
-        {ad.label && <div className="mt-4 text-sm font-semibold text-[#3a3128]">{ad.label}</div>}
         {ad.priceCaption && <div className="text-sm text-[#6b6154]">{ad.priceCaption}</div>}
         {ad.price && <div className="text-[clamp(20px,2.6vw,30px)] font-bold">{ad.price}</div>}
 
@@ -62,8 +55,6 @@ const AdCard: React.FC<{ ad: ProductAd }> = ({ ad }) => {
           </div>
         )}
       </div>
-
-      {ad.terms && <span className="absolute bottom-4 left-5 text-xs text-[#6b6154]">{ad.terms}</span>}
     </div>
   );
 

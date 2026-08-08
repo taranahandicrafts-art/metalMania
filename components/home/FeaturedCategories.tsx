@@ -11,6 +11,15 @@ interface Category {
   description: string | null;
 }
 
+const FALLBACK: Omit<Category, '_id'>[] = [
+  { name: 'Sofas', slug: 'sofas', image: null, product_count: 0, description: null },
+  { name: 'Chairs', slug: 'chairs', image: null, product_count: 0, description: null },
+  { name: 'Tables', slug: 'tables', image: null, product_count: 0, description: null },
+  { name: 'Beds', slug: 'beds', image: null, product_count: 0, description: null },
+  { name: 'Storage', slug: 'storage', image: null, product_count: 0, description: null },
+  { name: 'Lighting', slug: 'lighting', image: null, product_count: 0, description: null },
+];
+
 interface FeaturedCategoriesProps {
   categories: Category[];
 }
@@ -44,21 +53,22 @@ export function FeaturedCategories({ categories }: FeaturedCategoriesProps) {
         </div>
 
         <RevealGroup
-          className="mt-12 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-6"
+          className="mt-12 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-3 xl:grid-cols-6"
           stagger={0.06}
         >
           {items.map((category) => (
             <RevealItem key={category._id}>
               <Link href={hrefFor(category)} className="group block">
                 {/* Image tile */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-lux-charcoal">
+                <div className="relative aspect-3/4 w-full overflow-hidden rounded-2xl bg-lux-charcoal sm:aspect-4/3">
                   {category.image ? (
                     <Image
                       src={category.image}
                       alt={category.name}
                       fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 16vw"
                       className="object-cover transition-transform duration-[1.1s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+                      unoptimized={category.image.includes('drive.google.com')}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-lux-graphite to-lux-charcoal">

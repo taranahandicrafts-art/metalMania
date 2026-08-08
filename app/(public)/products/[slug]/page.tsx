@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import Product from '@/models/Product';
 import ProductVariant from '@/models/ProductVariant';
@@ -51,7 +52,7 @@ export default async function ProductDetailPage({ params }: Props) {
     ProductVariant.find({ product_id: product._id, is_active: true }).sort('sort_order').lean(),
     Review.find({ product_id: product._id, status: 'approved' }).sort('-created_at').lean(),
     (product.related_product_ids?.length
-      ? Product.find({ _id: { $in: product.related_product_ids }, status: 'published' })
+      ? Product.find({ _id: mongoose.trusted({ $in: product.related_product_ids.map((id: { toString(): string }) => id.toString()) }), status: 'published' })
           .select('title slug thumbnail base_price final_price discount material is_new_arrival')
           .limit(6)
           .lean()
@@ -84,7 +85,6 @@ export default async function ProductDetailPage({ params }: Props) {
   const productJson = JSON.parse(JSON.stringify(product));
 
   const breadcrumbs = [
-    { name: 'Home', href: '/' },
     { name: category?.name || 'Products', href: category ? `/products?category=${category._id}` : '/products' },
     { name: productJson.title, href: `/products/${slug}` },
   ];
@@ -134,7 +134,7 @@ export default async function ProductDetailPage({ params }: Props) {
         }),
       ]} />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 pt-44 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 pt-50 sm:px-6 lg:px-8">
         <Breadcrumbs items={breadcrumbs} />
 
         <div className="grid gap-8 lg:grid-cols-2">

@@ -61,7 +61,7 @@ export function generateOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Furniture Store',
+    name: 'Shubharambh Products',
     url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/logo.png`,
   };

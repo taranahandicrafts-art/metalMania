@@ -12,14 +12,22 @@ export async function GET(req: NextRequest) {
   const sort = searchParams.get('sort') || 'created_at';
   const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20')));
+  const allStatuses = searchParams.get('all') === 'true';
 
   if (q && q.length < 2) return NextResponse.json({ products: [], total: 0, facets: {} });
 
   try {
     await connectDB();
 
-    const match: Record<string, unknown> = { status: 'published' };
-    if (q) match.$text = { $search: q };
+    const match: Record<string, unknown> = allStatuses ? {} : { status: 'published' };
+    if (q) {
+      if (allStatuses) {
+        const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        match.$or = [{ title: re }, { brand: re }, { tags: re }, { sku: re }];
+      } else {
+        match.$text = { $search: q };
+      }
+    }
     if (category) match.category_id = category;
     if (minPrice || maxPrice) {
       const priceFilter: Record<string, number> = {};
@@ -31,7 +39,7 @@ export async function GET(req: NextRequest) {
 
     type SortOption = Record<string, 1 | -1 | { $meta: string }>;
     const sortOpts: SortOption = {};
-    if (q) sortOpts.score = { $meta: 'textScore' };
+    if (q && !allStatuses) sortOpts.score = { $meta: 'textScore' };
     else if (sort === 'price_asc') sortOpts.final_price = 1;
     else if (sort === 'price_desc') sortOpts.final_price = -1;
     else if (sort === 'newest') sortOpts.created_at = -1;
@@ -39,7 +47,7 @@ export async function GET(req: NextRequest) {
     else sortOpts.created_at = -1;
 
     const [products, total, facetResult] = await Promise.all([
-      Product.find(match, q ? { score: { $meta: 'textScore' } } : {})
+      Product.find(match, q && !allStatuses ? { score: { $meta: 'textScore' } } : {})
         .sort(sortOpts)
         .skip((page - 1) * limit)
         .limit(limit)
@@ -76,7 +84,9 @@ export async function GET(req: NextRequest) {
       totalPages: Math.ceil(total / limit),
       facets,
     });
-  } catch {
-    return NextResponse.json({ error: 'Search failed' }, { status: 500 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[/api/products/search]', err);
+    return NextResponse.json({ error: 'Search failed', detail: message }, { status: 500 });
   }
 }
