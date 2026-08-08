@@ -300,13 +300,13 @@ function GridSkeleton({ count = 6 }: { count?: number }) {
     <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="animate-pulse">
-          <div className="mx-auto mb-12 h-6 w-48 rounded bg-muted" />
+          <div className="mx-auto mb-12 h-6 w-48 rounded bg-stone-200" />
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: count }).map((_, i) => (
               <div key={i} className="space-y-3">
-                <div className="aspect-4/3 rounded-xl bg-muted" />
-                <div className="h-4 w-3/4 rounded bg-muted" />
-                <div className="h-3 w-1/3 rounded bg-muted" />
+                <div className="aspect-4/3 rounded-xl bg-stone-200" />
+                <div className="h-4 w-3/4 rounded bg-stone-200" />
+                <div className="h-3 w-1/3 rounded bg-stone-200" />
               </div>
             ))}
           </div>
@@ -319,13 +319,13 @@ function GridSkeleton({ count = 6 }: { count?: number }) {
 function HeroSkeleton() {
   return (
     <div className="mt-41.5 animate-pulse bg-white">
-      <div className="h-12 bg-muted" />
+      <div className="h-12 bg-stone-200" />
       <div className="mx-auto max-w-340 px-5 py-6">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-[2fr_1fr]">
-          <div className="aspect-16/10 rounded-2xl bg-muted" />
+          <div className="aspect-16/10 rounded-2xl bg-stone-200" />
           <div className="flex flex-col gap-5">
-            <div className="flex-1 rounded-2xl bg-muted" />
-            <div className="flex-1 rounded-2xl bg-muted" />
+            <div className="flex-1 rounded-2xl bg-stone-200" />
+            <div className="flex-1 rounded-2xl bg-stone-200" />
           </div>
         </div>
       </div>
