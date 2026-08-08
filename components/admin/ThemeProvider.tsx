@@ -27,14 +27,13 @@ export function ThemeProvider({ children, initialTheme = 'light' }: { children: 
   useEffect(() => {
     setMounted(true);
     const stored = localStorage.getItem('admin-theme') as Theme | null;
-    if (stored) {
-      setThemeState(stored);
-      document.documentElement.classList.toggle('dark', stored === 'dark');
+    if (stored === 'dark') {
+      setThemeState('dark');
+      document.documentElement.classList.add('dark');
     } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const t = prefersDark ? 'dark' : 'light';
-      setThemeState(t);
-      document.documentElement.classList.toggle('dark', t === 'dark');
+      // Default to light — never inherit OS dark mode preference.
+      // Dark mode is opt-in via the admin theme toggle only.
+      document.documentElement.classList.remove('dark');
     }
   }, []);
 
