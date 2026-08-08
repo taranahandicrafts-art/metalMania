@@ -13,7 +13,7 @@ const pad = (n: number) => n.toString().padStart(2, '0');
 
 const Unit: React.FC<{ value: number; label: string }> = ({ value, label }) => (
   <div className="text-center">
-    <div className="text-3xl font-extrabold tabular-nums tracking-wider text-[#d1362f]">{pad(value)}</div>
+    <div className="text-sm md:text-3xl font-extrabold tabular-nums tracking-wider text-[#d1362f]">{pad(value)}</div>
     <div className="mt-0.5 text-xs text-neutral-500">{label}</div>
   </div>
 );
@@ -35,7 +35,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ durationMs = SALE_DURAT
   const secs = Math.floor((remaining % (1000 * 60)) / 1000);
 
   return (
-    <div className="flex items-end gap-3.5">
+    <div className="text-xs lg:text-2xl flex items-end gap-3.5">
       <Unit value={days} label="Days" />
       <Sep />
       <Unit value={hrs} label="Hrs" />

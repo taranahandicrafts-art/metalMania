@@ -6,6 +6,7 @@ import { useCartStore } from '@/store/cart-store';
 
 interface ClientProductActionsProps {
   productId: string;
+  slug: string;
   sku: string;
   title: string;
   price: number;
@@ -17,6 +18,7 @@ interface ClientProductActionsProps {
 
 export function ClientProductActions({
   productId,
+  slug,
   sku,
   title,
   price,
@@ -33,6 +35,7 @@ export function ClientProductActions({
     addItem({
       product_id: productId,
       variant_id: variantId ?? null,
+      slug,
       title,
       sku,
       thumbnail,
@@ -60,7 +63,7 @@ export function ClientProductActions({
       <button
         onClick={handleAdd}
         className={`flex-1 rounded-md px-6 py-3 text-sm font-medium transition-colors ${
-          added ? 'bg-green-600 text-white' : 'bg-primary text-primary-foreground hover:bg-primary/90'
+          added ? 'bg-green-600 text-white' : 'bg-black text-white hover:bg-primary/90'
         }`}
       >
         {added ? 'Added to Cart!' : 'Add to Cart'}

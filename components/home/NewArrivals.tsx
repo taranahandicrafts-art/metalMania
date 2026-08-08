@@ -86,7 +86,7 @@ export function NewArrivals({ products }: NewArrivalsProps) {
 
       <div
         ref={trackRef}
-        className="mt-14 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-4 pb-4 sm:px-6 lg:px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-14 pl-8 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-4 pb-4 sm:px-6 lg:px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {/* Leading spacer to align first card with the max-w container gutter on wide screens */}
         <div aria-hidden className="hidden shrink-0 lg:block lg:w-[max(0px,calc((100vw-80rem)/2))]" />

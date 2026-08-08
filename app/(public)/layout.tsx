@@ -32,7 +32,7 @@ export default async function PublicLayout({
   const schemas = await getGlobalSchemas();
 
   return (
-    <>
+    <div className="bg-white text-black">
       <JsonLd schema={schemas} />
       <Header />
       <main className="min-h-screen">{children}</main>
@@ -40,6 +40,6 @@ export default async function PublicLayout({
       <FloatingWhatsApp />
       <FloatingCall />
       <ScrollToTop />
-    </>
+    </div>
   );
 }

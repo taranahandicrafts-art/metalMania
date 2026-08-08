@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 import Product from '@/models/Product';
 import ProductVariant from '@/models/ProductVariant';
+import Inventory from '@/models/Inventory';
 import Review from '@/models/Review';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { ProductTabs } from '@/components/product/ProductTabs';
@@ -48,7 +49,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const product = await Product.findOne({ slug, status: 'published' }).populate('category_id', 'name slug').lean();
   if (!product) notFound();
 
-  const [variants, reviews, relatedProducts, category] = await Promise.all([
+  const [variants, reviews, relatedProducts, category, inventoryRecords] = await Promise.all([
     ProductVariant.find({ product_id: product._id, is_active: true }).sort('sort_order').lean(),
     Review.find({ product_id: product._id, status: 'approved' }).sort('-created_at').lean(),
     (product.related_product_ids?.length
@@ -61,6 +62,7 @@ export default async function ProductDetailPage({ params }: Props) {
     product.category_id
       ? Category.findById(product.category_id).select('name slug').lean()
       : null,
+    Inventory.find({ product_id: product._id }).lean(),
   ]);
 
   const avgRating = reviews.length > 0
@@ -72,7 +74,9 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const images = (product.images || []).map((img) => ({ url: img.url, alt: img.alt }));
 
-  const allStock = variants.reduce((sum, v) => sum + v.stock, 0);
+  const allStock = inventoryRecords.length > 0
+    ? inventoryRecords.reduce((sum, inv) => sum + inv.stock, 0)
+    : variants.reduce((sum, v) => sum + v.stock, 0);
 
   const mappedVariants = variants.map((v) => ({
     _id: v._id.toString(),
@@ -154,6 +158,7 @@ export default async function ProductDetailPage({ params }: Props) {
             variants={mappedVariants}
             allStock={allStock}
             productId={productJson._id.toString()}
+            slug={productJson.slug}
             thumbnail={productJson.thumbnail}
           />
         </div>

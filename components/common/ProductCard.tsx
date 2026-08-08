@@ -25,7 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group relative block overflow-hidden rounded-lg bg-card"
+      className="group relative block overflow-hidden rounded-lg bg-white text-black"
     >
       <div className="relative aspect-square overflow-hidden bg-muted">
         {product.thumbnail ? (

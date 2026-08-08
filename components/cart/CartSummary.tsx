@@ -18,12 +18,12 @@ export function CartSummary() {
   if (items.length === 0) return null;
 
   return (
-    <div className="space-y-4 rounded-lg border p-6">
+    <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-6">
       <h2 className="text-lg font-semibold">Order Summary</h2>
 
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Subtotal</span>
+          <span className="text-slate-500">Subtotal</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
 
@@ -37,7 +37,7 @@ export function CartSummary() {
           </div>
         )}
 
-        <div className="border-t pt-2">
+        <div className="border-t border-slate-200 pt-2">
           <div className="flex justify-between font-semibold">
             <span>Total</span>
             <span>{formatPrice(total)}</span>
@@ -49,7 +49,7 @@ export function CartSummary() {
 
       <Link
         href="/checkout"
-        className="block rounded-md bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        className="block rounded-md bg-slate-900 px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-slate-800"
       >
         Proceed to Checkout
       </Link>

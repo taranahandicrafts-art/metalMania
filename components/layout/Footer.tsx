@@ -68,7 +68,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t bg-muted/30">
+    <footer className="text-black border-t border-[#e5e5e6] bg-[#fafafa]">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4">
@@ -91,7 +91,7 @@ export function Footer() {
                     aria-label={label}
                     title={label}
                     {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                    className="flex h-9 w-9 items-center justify-center rounded-full border text-muted-foreground transition-colors hover:border-foreground hover:bg-foreground hover:text-background"
+                    className="border-[#e5e5e6] flex h-9 w-9 items-center justify-center rounded-full border text-muted-foreground transition-colors hover:border-foreground hover:bg-foreground hover:text-background"
                   >
                     <Icon className="h-4 w-4" />
                   </a>
@@ -120,7 +120,7 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 border-t pt-6 text-center text-sm text-muted-foreground">
+        <div className="mt-12 border-t border-[#e5e5e6] pt-6 text-center text-sm text-muted-foreground">
           &copy; {year} {SITE_NAME}. All rights reserved.
         </div>
       </div>

@@ -22,9 +22,10 @@ async function resolveCategory(
   if (!value) return null;
   let doc: { _id: unknown; name: string } | null = null;
   if (isValidObjectId(value)) {
-    doc = (await Category.findById(value)
-      .select("name")
-      .lean()) as { _id: unknown; name: string } | null;
+    doc = (await Category.findById(value).select("name").lean()) as {
+      _id: unknown;
+      name: string;
+    } | null;
   }
   if (!doc) {
     const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -133,9 +134,7 @@ export default async function ProductsPage({ searchParams }: Props) {
   const breadcrumbs = [
     { name: "Home", href: "/" },
     {
-      name: q
-        ? `Search: "${q}"`
-        : resolvedCategory?.name || "All Products",
+      name: q ? `Search: "${q}"` : resolvedCategory?.name || "All Products",
       href: `/products${q ? `?q=${encodeURIComponent(q)}` : ""}`,
     },
   ];
@@ -146,9 +145,11 @@ export default async function ProductsPage({ searchParams }: Props) {
     <>
       <JsonLd schema={breadcrumbSchema(breadcrumbs)} />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 pt-50 sm:px-6 lg:px-8">
+      <div className="bg-white mx-auto max-w-7xl px-4 py-8 pt-50 sm:px-6 lg:px-8">
         {/* Full-width category strip: All → categories */}
-        <Suspense fallback={<div className="h-14 border-b border-neutral-200" />}>
+        <Suspense
+          fallback={<div className="h-14 border-b border-neutral-200" />}
+        >
           <CategoryNav
             categories={navCategories}
             activeCategory={resolvedCategory?.name || "All"}

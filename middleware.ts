@@ -10,6 +10,8 @@ const PUBLIC_ROUTES = ['/login', '/admin/forgot-password'];
 const PUBLIC_API: Array<{ prefix: string; methods?: string[] }> = [
   { prefix: '/api/auth' }, // NextAuth handlers (all methods)
   { prefix: '/api/webhooks' }, // provider-signed webhooks (verified in-route)
+  { prefix: '/api/search', methods: ['GET'] },
+  { prefix: '/api/promoAds', methods: ['GET'] },
   { prefix: '/api/products/search', methods: ['GET'] },
   { prefix: '/api/products', methods: ['GET'] },
   { prefix: '/api/categories', methods: ['GET'] },

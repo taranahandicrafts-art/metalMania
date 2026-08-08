@@ -39,7 +39,7 @@ const SaleBar: React.FC<SaleBarProps> = ({ settings }) => {
 
           {/* Sale + timer */}
           <div className="flex items-center justify-between gap-6 border-b border-neutral-200 pb-4 lg:justify-start lg:border-b-0 lg:border-none lg:pb-0 lg:pr-6">
-            <div className="text-[22px] font-extrabold leading-tight text-[#d1362f]">
+            <div className="text-sm font-extrabold leading-tight text-[#d1362f]">
               SALE<small className="block text-[13px] font-semibold">Ends In</small>
             </div>
             <CountdownTimer durationMs={timerDurationMs} />

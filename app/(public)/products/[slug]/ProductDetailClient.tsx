@@ -29,6 +29,7 @@ interface ProductDetailClientProps {
   }[];
   allStock: number;
   productId: string;
+  slug: string;
   thumbnail?: string;
 }
 
@@ -46,6 +47,7 @@ export function ProductDetailClient({
   variants,
   allStock,
   productId,
+  slug,
   thumbnail,
 }: ProductDetailClientProps) {
   const [selectedSku, setSelectedSku] = useState(sku);
@@ -77,6 +79,7 @@ export function ProductDetailClient({
 
       <ClientProductActions
         productId={productId}
+        slug={slug}
         sku={selectedSku}
         title={title}
         price={final_price}

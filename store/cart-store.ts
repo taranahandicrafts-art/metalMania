@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware';
 export interface CartItem {
   product_id: string;
   variant_id?: string | null;
+  slug?: string;
   title: string;
   sku: string;
   thumbnail?: string;
@@ -33,6 +34,7 @@ interface CartState {
   addItem: (item: CartItem) => void;
   removeItem: (productId: string, variantId?: string | null) => void;
   updateQuantity: (productId: string, quantity: number, variantId?: string | null) => void;
+  patchItem: (productId: string, patch: Partial<CartItem>) => void;
   clearCart: () => void;
   setNotes: (notes: string) => void;
   setAddress: (address: Record<string, string>) => void;
@@ -100,6 +102,13 @@ export const useCartStore = create<CartState>()(
             i.product_id === productId && i.variant_id === variantId
               ? { ...i, quantity: Math.max(1, Math.min(quantity, i.maxQuantity || 99)) }
               : i,
+          ),
+        })),
+
+      patchItem: (productId, patch) =>
+        set((state) => ({
+          items: state.items.map((i) =>
+            i.product_id === productId ? { ...i, ...patch } : i,
           ),
         })),
 

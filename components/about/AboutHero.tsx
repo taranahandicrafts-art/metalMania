@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export function AboutHero() {
   return (
-    <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-[#1A1714]">
+    <section className="pt-50 md:pt-44 relative flex min-h-[80vh] items-center justify-center overflow-hidden bg-[#1A1714]">
       <div className="absolute inset-0">
         <div
           className="absolute inset-0 bg-cover bg-center"

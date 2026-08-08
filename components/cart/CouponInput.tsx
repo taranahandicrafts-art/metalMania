@@ -39,11 +39,11 @@ export function CouponInput() {
 
   if (coupon) {
     return (
-      <div className="flex items-center justify-between rounded-md border bg-muted/30 px-3 py-2 text-sm">
+      <div className="flex items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
         <span className="font-medium text-green-600">{coupon.code}</span>
         <button
           onClick={removeCoupon}
-          className="text-xs text-muted-foreground underline-offset-2 hover:text-destructive hover:underline"
+          className="text-xs text-slate-500 underline-offset-2 hover:text-red-500 hover:underline"
         >
           Remove
         </button>
@@ -60,7 +60,7 @@ export function CouponInput() {
           value={code}
           onChange={(e) => { setCode(e.target.value); setError(''); }}
           placeholder="Enter coupon"
-          className="flex-1 rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+          className="flex-1 rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-slate-900/20"
           onKeyDown={(e) => e.key === 'Enter' && handleApply()}
         />
         <button
@@ -69,14 +69,14 @@ export function CouponInput() {
           className={cn(
             'rounded-md px-4 py-2 text-sm font-medium transition-colors',
             loading
-              ? 'bg-muted text-muted-foreground'
-              : 'bg-primary text-primary-foreground hover:bg-primary/90',
+              ? 'bg-slate-100 text-slate-400'
+              : 'bg-slate-900 text-white hover:bg-slate-800',
           )}
         >
           {loading ? '...' : 'Apply'}
         </button>
       </div>
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }

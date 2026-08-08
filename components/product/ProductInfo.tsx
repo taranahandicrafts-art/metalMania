@@ -51,7 +51,7 @@ export function ProductInfo({
       </div>
 
       <div className="flex flex-wrap gap-3 text-sm">
-        <span className="rounded-md bg-muted px-3 py-1">{material}</span>
+        <span className="rounded-md bg-[#d3dbf2] px-3 py-1">{material}</span>
         {shipping.free_shipping && (
           <span className="rounded-md bg-green-100 px-3 py-1 text-green-700">Free Shipping</span>
         )}

@@ -68,7 +68,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
             {/* Left-to-right dark scrim for legibility */}
             <div className="absolute inset-0 bg-linear-to-r from-[#3c2a1c]/60 via-[#3c2a1c]/20 to-transparent" />
             <div className="absolute left-0 top-0 max-w-[62%] p-8 text-white drop-shadow-[0_1px_12px_rgba(0,0,0,0.25)] sm:p-12">
-              <h2 className="font-serif text-2xl lg:text-4xl font-normal leading-[0.98] tracking-wide">
+              <h2 className="font-serif text-xl lg:text-4xl font-normal leading-[0.98] tracking-wide">
                 {s.titleLine1}
                 {s.titleLine2 && (
                   <>
@@ -78,10 +78,10 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({
                 )}
                 {!s.titleLine2 && <br />}
               </h2>
-              <div className="mt-4 text-sm md:text-lg font-medium">
+              <div className="hidden md:block mt-4 text-sm md:text-lg font-medium">
                 {s.subtitle}
               </div>
-              <span className="mt-3 inline-block rounded bg-[#3c2a1c]/70 px-4 py-2 text-sm md:text-lg font-semibold">
+              <span className="mt-3 inline-block rounded bg-[#3c2a1c]/70 px-4 py-2 text-xs md:text-lg font-semibold">
                 {s.price}
               </span>
               {s.slug && (

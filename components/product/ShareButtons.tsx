@@ -32,7 +32,7 @@ export function ShareButtons({ title, url }: { title: string; url?: string }) {
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex h-8 w-8 items-center justify-center rounded-full border transition-colors hover:bg-muted"
+          className="text-[##727272] flex h-8 w-8 items-center justify-center rounded-full border border-[#e6e6e6] transition-colors hover:bg-muted"
           aria-label={`Share on ${link.name}`}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">

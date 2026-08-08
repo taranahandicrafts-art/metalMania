@@ -83,7 +83,7 @@ export const PromoAdsCarousel: React.FC<PromoAdsCarouselProps> = ({
   const showControls = status === "ready" && items.length > perView;
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
+    <section className="bg-white mx-auto max-w-7xl px-4 py-6 sm:py-8">
       {title && (
         <h2 className="mb-6 text-center text-2xl font-bold text-neutral-900 sm:text-3xl">
           {title}
