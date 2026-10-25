@@ -7,17 +7,8 @@ interface NewArrivalsProps {
   products: LuxProduct[];
 }
 
-const FALLBACK: LuxProduct[] = [
-  { _id: 'n1', title: 'Aria travertine coffee table', slug: 'aria-coffee-table', thumbnail: 'https://images.unsplash.com/photo-1554295405-abb8fd54f153?q=80&w=1200', base_price: 42000, final_price: 42000, discount: 0, material: 'Travertine', is_new_arrival: true, is_best_seller: false, rating: 5, review_count: 12, short_description: 'A softly veined stone top on a sculpted plinth base.' },
-  { _id: 'n2', title: 'Linnea linen bed', slug: 'linnea-bed', thumbnail: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=1200', base_price: 58000, final_price: 58000, discount: 0, material: 'Belgian linen', is_new_arrival: true, is_best_seller: false, rating: 5, review_count: 9, short_description: 'A fully upholstered headboard in washed natural linen.' },
-  { _id: 'n3', title: 'Sten oak sideboard', slug: 'sten-sideboard', thumbnail: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?q=80&w=1200', base_price: 64000, final_price: 64000, discount: 0, material: 'White oak', is_new_arrival: true, is_best_seller: false, rating: 4, review_count: 7, short_description: 'Fluted doors and solid brass pulls, soft-close throughout.' },
-  { _id: 'n4', title: 'Corso boucle armchair', slug: 'corso-armchair', thumbnail: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1200', base_price: 34000, final_price: 34000, discount: 0, material: 'Bouclé', is_new_arrival: true, is_best_seller: false, rating: 5, review_count: 15, short_description: 'A curved shell that wraps you in soft ivory bouclé.' },
-  { _id: 'n5', title: 'Vale walnut desk', slug: 'vale-desk', thumbnail: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?q=80&w=1200', base_price: 48000, final_price: 48000, discount: 0, material: 'Walnut', is_new_arrival: true, is_best_seller: false, rating: 5, review_count: 5, short_description: 'A slim writing desk with a leather-lined drawer.' },
-  { _id: 'n6', title: 'Mira woven pendant', slug: 'mira-pendant', thumbnail: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?q=80&w=1200', base_price: 22000, final_price: 22000, discount: 0, material: 'Rattan', is_new_arrival: true, is_best_seller: false, rating: 4, review_count: 8, short_description: 'Hand-woven rattan casting warm, dappled light.' },
-];
-
 export function NewArrivals({ products }: NewArrivalsProps) {
-  const items = products.length > 0 ? products : FALLBACK;
+  const items = products;
   const trackRef = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
@@ -51,6 +42,9 @@ export function NewArrivals({ products }: NewArrivalsProps) {
   const arrowBase =
     'flex h-12 w-12 items-center justify-center rounded-full border transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed';
 
+  // Hide the section rather than show placeholder pieces that link nowhere.
+  if (items.length === 0) return null;
+
   return (
     <section className="relative overflow-hidden bg-lux-ivory py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -62,6 +56,12 @@ export function NewArrivals({ products }: NewArrivalsProps) {
             description="The latest additions to the atelier — fresh silhouettes, materials and finishes, released in small runs."
           />
           <div className="flex items-center gap-3">
+            <a
+              href="/products?is_new_arrival=true"
+              className="mr-2 text-sm font-medium uppercase tracking-[0.14em] text-lux-ink hover:text-lux-gold"
+            >
+              View all
+            </a>
             <button
               type="button"
               onClick={() => scrollBy(-1)}

@@ -42,7 +42,7 @@ const FAQ_ITEMS = [
   {
     question: 'What is your return policy?',
     answer:
-      'We offer a 30-day satisfaction guarantee. If you are not completely satisfied with your purchase, we will arrange a complimentary pickup and full refund. Custom orders can be returned within 7 days of delivery.',
+      'We offer a 30-day satisfaction guarantee. If you are not completely satisfied with your purchase, we will arrange a complimentary pickup and full refund. Custom-made items can only be returned if they arrive damaged or defective.',
   },
 ];
 

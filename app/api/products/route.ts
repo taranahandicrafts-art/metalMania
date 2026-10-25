@@ -28,11 +28,8 @@ export async function GET(req: NextRequest) {
     }
     if (category) query.category_id = category;
     if (search) {
-      const safe = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      query.$or = [
-        { title: { $regex: safe, $options: 'i' } },
-        { sku: { $regex: safe, $options: 'i' } },
-      ];
+      const re = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      query.$or = [{ title: re }, { sku: re }];
     }
 
     const [products, total] = await Promise.all([

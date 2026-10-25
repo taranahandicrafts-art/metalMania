@@ -28,7 +28,7 @@ export interface MongoModel<T extends Document> extends Model<T> {
 // ──────────────────────────────────────────────
 
 export type DimensionUnit = 'cm' | 'inch';
-export type WeightUnit = 'kg' | 'lb';
+export type WeightUnit = 'kg' | 'g' | 'lb';
 
 export interface Dimensions {
   length: number;

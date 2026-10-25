@@ -33,7 +33,7 @@ const DEFAULTS: Required<PromoBannerSettings> = {
   description:
     'For a limited season, our signature seating and hand-built casegoods are offered with white-glove delivery included — and up to a quarter off the collection.',
   cta_primary_text: 'Shop the event',
-  cta_primary_href: '/products?is_best_seller=true',
+  cta_primary_href: '/products?is_featured=true',
   cta_secondary_text: 'Book a consultation',
   cta_secondary_href: '/about',
   image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1400',

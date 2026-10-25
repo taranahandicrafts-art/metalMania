@@ -43,7 +43,6 @@ export async function GET() {
         tagline: p.short_description || p.material || "",
         priceCaption: "Starting From",
         price: formatPrice(p.final_price ?? p.base_price),
-        footnote: "FREE Delivery Available",
         image,
         href: `/products/${p.slug}`,
         bgClassName: "bg-[#efe9df]",

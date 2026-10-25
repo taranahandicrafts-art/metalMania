@@ -11,27 +11,15 @@ interface Category {
   description: string | null;
 }
 
-const FALLBACK: Omit<Category, '_id'>[] = [
-  { name: 'Sofas', slug: 'sofas', image: null, product_count: 0, description: null },
-  { name: 'Chairs', slug: 'chairs', image: null, product_count: 0, description: null },
-  { name: 'Tables', slug: 'tables', image: null, product_count: 0, description: null },
-  { name: 'Beds', slug: 'beds', image: null, product_count: 0, description: null },
-  { name: 'Storage', slug: 'storage', image: null, product_count: 0, description: null },
-  { name: 'Lighting', slug: 'lighting', image: null, product_count: 0, description: null },
-];
-
 interface FeaturedCategoriesProps {
   categories: Category[];
 }
 
 export function FeaturedCategories({ categories }: FeaturedCategoriesProps) {
-  const items: Category[] =
-    categories.length > 0
-      ? categories
-      : FALLBACK.map((c, i) => ({ ...c, _id: `fallback-${i}` }));
+  if (categories.length === 0) return null;
+  const items = categories;
 
-  const hrefFor = (c: Category) =>
-    c._id.startsWith('fallback-') ? `/products?category=${c.slug}` : `/products?category=${c._id}`;
+  const hrefFor = (c: Category) => `/products?category=${c._id}`;
 
   return (
     <section className="relative overflow-hidden bg-lux-ivory py-12">

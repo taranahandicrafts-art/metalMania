@@ -1,6 +1,10 @@
 import { connectDB } from '@/lib/db';
 import Media from '@/models/Media';
 
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export async function saveMedia(data: Record<string, unknown>) {
   await connectDB();
   return Media.create(data);
@@ -26,7 +30,7 @@ export async function listMedia(options: {
   const query: Record<string, unknown> = {};
   if (type) query.resource_type = type;
   if (folder) query.folder = folder;
-  if (search) query.public_id = { $regex: search, $options: 'i' };
+  if (search) query.public_id = new RegExp(escapeRegex(search), 'i');
 
   const [media, total] = await Promise.all([
     Media.find(query).sort({ created_at: -1 }).skip((page - 1) * limit).limit(limit).lean(),
@@ -38,7 +42,7 @@ export async function listMedia(options: {
 
 export async function searchMedia(q: string) {
   await connectDB();
-  return Media.find({ public_id: { $regex: q, $options: 'i' } }).limit(20).lean();
+  return Media.find({ public_id: new RegExp(escapeRegex(q), 'i') }).limit(20).lean();
 }
 
 export async function getUsageReferences(publicId: string) {

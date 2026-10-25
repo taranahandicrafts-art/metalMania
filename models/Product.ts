@@ -186,7 +186,7 @@ const WeightSchema = new MongooseSchema(
     unit: {
       type: String,
       enum: {
-        values: ['kg', 'lb'],
+        values: ['kg', 'g', 'lb'],
         message: '{VALUE} is not a valid weight unit',
       },
       required: true,
@@ -404,9 +404,10 @@ ProductSchema.index(
 );
 
 ProductSchema.pre<IProduct>('validate', function preValidate(next) {
-  if (this.isModified('title') && !this.isModified('slug')) {
-    this.slug = slugify(this.title);
-  }
+  // Always store a URL-safe slug: an admin-typed slug such as "Brass Lamp"
+  // would otherwise produce /products/brass%20lamp links that 404.
+  const source = this.slug?.trim() ? this.slug : this.title;
+  if (source) this.slug = slugify(source);
   next();
 });
 
@@ -423,6 +424,13 @@ ProductSchema.pre<IProduct>('save', function preSave(next) {
 
 ProductSchema.pre('findOneAndUpdate', async function preFindOneAndUpdate(next) {
   const update = this.getUpdate() as Record<string, unknown>;
+  // Validate hooks don't run on findOneAndUpdate, so normalise the slug here too.
+  if (update && Object.prototype.hasOwnProperty.call(update, 'slug')) {
+    const raw = typeof update.slug === 'string' ? update.slug.trim() : '';
+    const source = raw || (typeof update.title === 'string' ? update.title : '');
+    if (source) this.set({ slug: slugify(source) });
+    else delete update.slug;
+  }
   if (update?.base_price !== undefined || update?.discount !== undefined) {
     const doc = await this.model.findOne(this.getQuery()).lean();
     if (doc) {

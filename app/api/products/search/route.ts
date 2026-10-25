@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
+import mongoose from 'mongoose';
 import Product from '@/models/Product';
 
 export async function GET(req: NextRequest) {
@@ -25,17 +26,17 @@ export async function GET(req: NextRequest) {
         const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
         match.$or = [{ title: re }, { brand: re }, { tags: re }, { sku: re }];
       } else {
-        match.$text = { $search: q };
+        match.$text = mongoose.trusted({ $search: q });
       }
     }
     if (category) match.category_id = category;
     if (minPrice || maxPrice) {
       const priceFilter: Record<string, number> = {};
-      if (minPrice) priceFilter.$gte = parseFloat(minPrice);
-      if (maxPrice) priceFilter.$lte = parseFloat(maxPrice);
-      match.base_price = priceFilter;
+      if (minPrice && !isNaN(parseFloat(minPrice))) priceFilter.$gte = parseFloat(minPrice);
+      if (maxPrice && !isNaN(parseFloat(maxPrice))) priceFilter.$lte = parseFloat(maxPrice);
+      if (Object.keys(priceFilter).length) match.final_price = mongoose.trusted(priceFilter);
     }
-    if (material) match.material = { $regex: material, $options: 'i' } as unknown;
+    if (material) match.material = new RegExp(material.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
 
     type SortOption = Record<string, 1 | -1 | { $meta: string }>;
     const sortOpts: SortOption = {};

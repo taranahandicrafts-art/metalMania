@@ -21,10 +21,26 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+/**
+ * Builds the lookup for a product URL segment. Accepts the (possibly
+ * URL-encoded) slug in any case, and also a product id so older links that
+ * fell back to `/products/<id>` keep working.
+ */
+function productFilter(rawSlug: string): Record<string, unknown> {
+  let slug = rawSlug;
+  try {
+    slug = decodeURIComponent(rawSlug);
+  } catch {}
+  slug = slug.trim().toLowerCase();
+  const or: Record<string, unknown>[] = [{ slug }];
+  if (mongoose.isValidObjectId(slug)) or.push({ _id: slug });
+  return { $or: or, status: 'published' };
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   await connectDB();
-  const product = await Product.findOne({ slug, status: 'published' }).select('title short_description seo meta thumbnail').lean();
+  const product = await Product.findOne(productFilter(slug)).select('title short_description seo meta thumbnail').lean();
   if (!product) return {};
 
   const metaTitle = product.seo?.title || product.title;
@@ -46,7 +62,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
   await connectDB();
 
-  const product = await Product.findOne({ slug, status: 'published' }).populate('category_id', 'name slug').lean();
+  const product = await Product.findOne(productFilter(slug)).populate('category_id', 'name slug').lean();
   if (!product) notFound();
 
   const [variants, reviews, relatedProducts, category, inventoryRecords] = await Promise.all([
@@ -77,6 +93,11 @@ export default async function ProductDetailPage({ params }: Props) {
   const allStock = inventoryRecords.length > 0
     ? inventoryRecords.reduce((sum, inv) => sum + inv.stock, 0)
     : variants.reduce((sum, v) => sum + v.stock, 0);
+
+  // Per-SKU stock so the quantity picker can't exceed what's actually available.
+  const stockBySku: Record<string, number> = {};
+  for (const v of variants) stockBySku[v.sku.toUpperCase()] = v.stock;
+  for (const inv of inventoryRecords) stockBySku[inv.sku.toUpperCase()] = inv.stock;
 
   const mappedVariants = variants.map((v) => ({
     _id: v._id.toString(),
@@ -157,9 +178,11 @@ export default async function ProductDetailPage({ params }: Props) {
             shipping={productJson.shipping}
             variants={mappedVariants}
             allStock={allStock}
+            stockBySku={stockBySku}
             productId={productJson._id.toString()}
             slug={productJson.slug}
             thumbnail={productJson.thumbnail}
+            returnPolicy={productJson.return_policy || undefined}
           />
         </div>
 

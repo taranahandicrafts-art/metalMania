@@ -249,7 +249,8 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
           </div>
           <div className="space-y-2">
             <label className={labelClass}>Slug</label>
-            <input className={inputClass} value={form.slug} onChange={(e) => update('slug', e.target.value)} />
+            <input className={inputClass} value={form.slug} onChange={(e) => update('slug', e.target.value)} placeholder="Auto-generated from title" />
+            <p className="text-xs text-muted-foreground">Used in the product URL (/products/your-slug). Spaces and symbols are converted automatically.</p>
           </div>
           <div className="space-y-2">
             <label className={labelClass}>SKU</label>
@@ -268,15 +269,15 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
             <div className="grid gap-4 sm:grid-cols-4">
               <div className="space-y-2">
                 <label className={labelClass}>Length</label>
-                <input type="number" min="0" step="0.1" className={inputClass} value={form.dim_length} onChange={(e) => update('dim_length', Number(e.target.value))} required />
+                <input type="number" min="0" step="0.1" className={inputClass} value={form.dim_length || ''} placeholder="0" onChange={(e) => update('dim_length', Number(e.target.value))} required />
               </div>
               <div className="space-y-2">
                 <label className={labelClass}>Width</label>
-                <input type="number" min="0" step="0.1" className={inputClass} value={form.dim_width} onChange={(e) => update('dim_width', Number(e.target.value))} required />
+                <input type="number" min="0" step="0.1" className={inputClass} value={form.dim_width || ''} placeholder="0" onChange={(e) => update('dim_width', Number(e.target.value))} required />
               </div>
               <div className="space-y-2">
                 <label className={labelClass}>Height</label>
-                <input type="number" min="0" step="0.1" className={inputClass} value={form.dim_height} onChange={(e) => update('dim_height', Number(e.target.value))} required />
+                <input type="number" min="0" step="0.1" className={inputClass} value={form.dim_height || ''} placeholder="0" onChange={(e) => update('dim_height', Number(e.target.value))} required />
               </div>
               <div className="space-y-2">
                 <label className={labelClass}>Unit</label>
@@ -290,12 +291,13 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <label className={labelClass}>Value</label>
-                <input type="number" min="0" step="0.1" className={inputClass} value={form.weight_value} onChange={(e) => update('weight_value', Number(e.target.value))} required />
+                <input type="number" min="0" step="0.1" className={inputClass} value={form.weight_value || ''} placeholder="0" onChange={(e) => update('weight_value', Number(e.target.value))} required />
               </div>
               <div className="space-y-2">
                 <label className={labelClass}>Unit</label>
                 <select className={inputClass} value={form.weight_unit} onChange={(e) => update('weight_unit', e.target.value)}>
                   <option value="kg">kg</option>
+                  <option value="g">g</option>
                   <option value="lb">lb</option>
                 </select>
               </div>
@@ -317,11 +319,11 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
             <label className={labelClass}>Base Price (₹)</label>
-            <input type="number" min="0" className={inputClass} value={form.base_price} onChange={(e) => update('base_price', Number(e.target.value))} required />
+            <input type="number" min="0" className={inputClass} value={form.base_price || ''} placeholder="0" onChange={(e) => update('base_price', Number(e.target.value))} required />
           </div>
           <div className="space-y-2">
             <label className={labelClass}>Discount (%)</label>
-            <input type="number" min="0" max="100" className={inputClass} value={form.discount} onChange={(e) => update('discount', Number(e.target.value))} />
+            <input type="number" min="0" max="100" className={inputClass} value={form.discount || ''} placeholder="0" onChange={(e) => update('discount', Number(e.target.value))} />
           </div>
           <div className="space-y-2">
             <label className={labelClass}>Final Price</label>
@@ -431,8 +433,12 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
           </div>
         )}
         <div className="space-y-2">
-          <label className={labelClass}>Thumbnail URL</label>
+          <label className={labelClass}>Thumbnail URL (optional)</label>
           <input className={inputClass} value={form.thumbnail} onChange={(e) => update('thumbnail', e.target.value)} placeholder="Leave empty to use first image" />
+          <p className="text-xs text-muted-foreground">
+            The cover image shown on product cards, home-page sections, search results and the cart. Paste an image URL
+            to use a different picture from the gallery; leave it empty and the first image above is used automatically.
+          </p>
         </div>
       </div>
 
@@ -485,11 +491,11 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
             <label className={labelClass}>Weight (kg)</label>
-            <input type="number" min="0" step="0.1" className={inputClass} value={form.shipping_weight} onChange={(e) => update('shipping_weight', Number(e.target.value))} />
+            <input type="number" min="0" step="0.1" className={inputClass} value={form.shipping_weight || ''} placeholder="0" onChange={(e) => update('shipping_weight', Number(e.target.value))} />
           </div>
           <div className="space-y-2">
             <label className={labelClass}>Flat Rate (₹)</label>
-            <input type="number" min="0" className={inputClass} value={form.shipping_flat_rate} onChange={(e) => update('shipping_flat_rate', Number(e.target.value))} />
+            <input type="number" min="0" className={inputClass} value={form.shipping_flat_rate || ''} placeholder="0" onChange={(e) => update('shipping_flat_rate', Number(e.target.value))} />
           </div>
           <div className="space-y-2 flex items-end pb-2">
             <label className="flex items-center gap-2 text-sm">
@@ -515,6 +521,10 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
             <label className={labelClass}>Warranty Description</label>
             <input className={inputClass} value={form.warranty_desc} onChange={(e) => update('warranty_desc', e.target.value)} />
           </div>
+        </div>
+        <div className="space-y-2 pt-4">
+          <label className={labelClass}>Return Policy Note (optional)</label>
+          <input className={inputClass} value={form.return_policy} onChange={(e) => update('return_policy', e.target.value)} placeholder="Leave empty to show the standard 30-day return policy" />
         </div>
       </div>
 

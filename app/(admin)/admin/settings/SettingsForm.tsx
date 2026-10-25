@@ -77,9 +77,9 @@ const SECTIONS: Section[] = [
       },
       {
         key: "cta_primary_href",
-        label: "Primary Button Link",
+        label: "Primary Button Link (leave empty to open the latest Featured product)",
         type: "text",
-        default: "/products?is_best_seller=true",
+        default: "",
       },
       {
         key: "cta_secondary_text",

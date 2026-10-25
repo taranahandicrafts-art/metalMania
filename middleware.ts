@@ -21,6 +21,7 @@ const PUBLIC_API: Array<{ prefix: string; methods?: string[] }> = [
   { prefix: '/api/newsletter', methods: ['POST'] },
   { prefix: '/api/coupons/validate', methods: ['POST'] },
   { prefix: '/api/analytics', methods: ['POST'] },
+  { prefix: '/api/orders', methods: ['POST'] }, // checkout; validated & re-priced in-route
 ];
 
 function isPublicApi(pathname: string, method: string): boolean {

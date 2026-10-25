@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import { connectDB } from "@/lib/db";
 import Product from "@/models/Product";
 import Category from "@/models/Category";
@@ -40,6 +40,14 @@ async function resolveCategory(
   }
   return doc ? { id: String(doc._id), name: doc.name } : null;
 }
+
+/** Merchandising flags set in the admin product form, usable as `?flag=true`. */
+const FLAG_FILTERS = [
+  { param: "is_featured", label: "Featured" },
+  { param: "is_new_arrival", label: "New Arrivals" },
+  { param: "is_best_seller", label: "Best Sellers" },
+  { param: "is_trending", label: "Trending" },
+] as const;
 
 interface Props {
   searchParams: Promise<Record<string, string>>;
@@ -97,14 +105,19 @@ export default async function ProductsPage({ searchParams }: Props) {
 
   const match: Record<string, unknown> = { status: "published" };
   if (resolvedCategory) match.category_id = resolvedCategory.id;
-  if (material) match.material = { $regex: material, $options: "i" } as unknown;
+  if (material) match.material = new RegExp(material.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
   if (minPrice || maxPrice) {
+    // Filter on the price customers see; trusted() so sanitizeFilter keeps the range operators.
     const priceFilter: Record<string, number> = {};
-    if (minPrice) priceFilter.$gte = parseFloat(minPrice);
-    if (maxPrice) priceFilter.$lte = parseFloat(maxPrice);
-    match.base_price = priceFilter;
+    if (minPrice && !isNaN(parseFloat(minPrice))) priceFilter.$gte = parseFloat(minPrice);
+    if (maxPrice && !isNaN(parseFloat(maxPrice))) priceFilter.$lte = parseFloat(maxPrice);
+    if (Object.keys(priceFilter).length) match.final_price = mongoose.trusted(priceFilter);
   }
-  if (q) match.$text = { $search: q };
+  if (q) match.$text = mongoose.trusted({ $search: q });
+  for (const flag of FLAG_FILTERS) {
+    if (params[flag.param] === "true") match[flag.param] = true;
+  }
+  const activeFlag = FLAG_FILTERS.find((f) => params[f.param] === "true");
 
   type SortOption = Record<string, 1 | -1>;
   const sortOpts: SortOption =
@@ -134,7 +147,9 @@ export default async function ProductsPage({ searchParams }: Props) {
   const breadcrumbs = [
     { name: "Home", href: "/" },
     {
-      name: q ? `Search: "${q}"` : resolvedCategory?.name || "All Products",
+      name: q
+        ? `Search: "${q}"`
+        : resolvedCategory?.name || activeFlag?.label || "All Products",
       href: `/products${q ? `?q=${encodeURIComponent(q)}` : ""}`,
     },
   ];
@@ -192,7 +207,7 @@ export default async function ProductsPage({ searchParams }: Props) {
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <a
                   key={p}
-                  href={`/products?page=${p}&sort=${sort}${categoryParam ? `&category=${encodeURIComponent(categoryParam)}` : ""}${material ? `&material=${material}` : ""}${minPrice ? `&minPrice=${minPrice}` : ""}${maxPrice ? `&maxPrice=${maxPrice}` : ""}${q ? `&q=${q}` : ""}`}
+                  href={`/products?page=${p}&sort=${sort}${categoryParam ? `&category=${encodeURIComponent(categoryParam)}` : ""}${activeFlag ? `&${activeFlag.param}=true` : ""}${material ? `&material=${material}` : ""}${minPrice ? `&minPrice=${minPrice}` : ""}${maxPrice ? `&maxPrice=${maxPrice}` : ""}${q ? `&q=${q}` : ""}`}
                   className={`inline-flex h-9 w-9 items-center justify-center rounded-md text-sm ${
                     p === page
                       ? "bg-primary text-primary-foreground"

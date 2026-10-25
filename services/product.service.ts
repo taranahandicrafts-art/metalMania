@@ -1,4 +1,5 @@
 import { connectDB } from '@/lib/db';
+import mongoose from 'mongoose';
 import Product from '@/models/Product';
 import { generateSlug, ensureUniqueSlug } from '@/utils/slugify';
 import { sanitizeHtml } from '@/utils/sanitize';
@@ -51,7 +52,7 @@ export async function listProducts(options: {
 
   const query: Record<string, unknown> = { status };
   if (category) query.category_id = category;
-  if (search) query.$text = { $search: search };
+  if (search) query.$text = mongoose.trusted({ $search: search });
 
   let sortQuery: Record<string, 1 | -1> = { created_at: -1 };
   if (sort === 'price_asc') sortQuery = { final_price: 1 };
@@ -72,7 +73,7 @@ export async function listProducts(options: {
 export async function searchProducts(q: string, limit = 10) {
   await connectDB();
   return Product.find(
-    { $text: { $search: q }, status: 'published' },
+    { $text: mongoose.trusted({ $search: q }), status: 'published' },
     { score: { $meta: 'textScore' } },
   )
     .sort({ score: { $meta: 'textScore' } })

@@ -7,8 +7,8 @@ export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+9178
 export const WHATSAPP_PREFIX = 'https://wa.me';
 export const WHATSAPP_MESSAGE_TEMPLATE = 'Hi, I would like to place an order for:';
 export const EMAIL_ADDRESS = 'jangidvikas5524@gmail.com';
-export const FACEBOOK_URL = 'https://www.A.com/metal_maniahub/';
-export const INSTAGRAM_URL = 'https://www.instagram.com/metal_maniahub/';
+export const FACEBOOK_URL = 'https://www.facebook.com/metal_maniahub/';
+export const INSTAGRAM_URL = 'https://www.instagram.com/metal_maniahub_/';
 
 
 export const PHONE_NUMBER = '+917878245011';

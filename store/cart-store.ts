@@ -77,16 +77,18 @@ export const useCartStore = create<CartState>()(
           const existing = state.items.find(
             (i) => i.product_id === item.product_id && i.variant_id === item.variant_id,
           );
+          const max = item.maxQuantity ?? existing?.maxQuantity ?? 99;
           if (existing) {
             return {
               items: state.items.map((i) =>
                 i.product_id === item.product_id && i.variant_id === item.variant_id
-                  ? { ...i, quantity: i.quantity + item.quantity }
+                  ? { ...i, maxQuantity: max, quantity: Math.min(i.quantity + item.quantity, max) }
                   : i,
               ),
             };
           }
-          return { items: [...state.items, item] };
+          if (max <= 0) return state;
+          return { items: [...state.items, { ...item, quantity: Math.min(item.quantity, max) }] };
         }),
 
       removeItem: (productId, variantId) =>

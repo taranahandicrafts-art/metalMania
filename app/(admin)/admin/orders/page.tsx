@@ -33,11 +33,8 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
   if (status) query.status = status;
   if (source) query.source = source;
   if (search) {
-    query.$or = [
-      { order_number: { $regex: search, $options: 'i' } },
-      { 'customer.name': { $regex: search, $options: 'i' } },
-      { 'customer.phone': { $regex: search, $options: 'i' } },
-    ];
+    const re = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    query.$or = [{ order_number: re }, { 'customer.name': re }, { 'customer.phone': re }];
   }
 
   const [orders, total] = await Promise.all([

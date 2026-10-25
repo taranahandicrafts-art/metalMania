@@ -1,4 +1,5 @@
 import { connectDB } from '@/lib/db';
+import mongoose from 'mongoose';
 import Order from '@/models/Order';
 import Analytics from '@/models/Analytics';
 import Product from '@/models/Product';
@@ -9,13 +10,13 @@ export async function getDashboardStats() {
 
   const [totalOrders, newOrders, totalProducts, totalRevenue, recentEvents] = await Promise.all([
     Order.countDocuments(),
-    Order.countDocuments({ created_at: { $gte: thirtyDaysAgo } }),
+    Order.countDocuments({ created_at: mongoose.trusted({ $gte: thirtyDaysAgo }) }),
     Product.countDocuments({ status: 'published' }),
     Order.aggregate([
       { $match: { status: { $nin: ['cancelled'] } } },
       { $group: { _id: null, total: { $sum: '$total' } } },
     ]),
-    Analytics.find({ timestamp: { $gte: thirtyDaysAgo } }).sort({ timestamp: -1 }).limit(50).lean(),
+    Analytics.find({ timestamp: mongoose.trusted({ $gte: thirtyDaysAgo }) }).sort({ timestamp: -1 }).limit(50).lean(),
   ]);
 
   return {

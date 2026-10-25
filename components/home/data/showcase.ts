@@ -1,8 +1,18 @@
 import { CarouselSlide, ProductAd, Bank, Announcement, ContactLink } from '../types';
+import {
+  EMAIL_ADDRESS,
+  FACEBOOK_URL,
+  INSTAGRAM_URL,
+  PHONE_NUMBER,
+  WHATSAPP_NUMBER,
+  WHATSAPP_PREFIX,
+} from '@/lib/constants';
 
-const STUDY   = 'https://cvent-be.glean.com/api/v1/downloadchatfile/6bb6be9aed0242f0b54c940cc0a5923b';
-const MATTRESS = 'https://cvent-be.glean.com/api/v1/downloadchatfile/e65cfc58a5a04600950b67cb659d9451';
-const BEDROOM = 'https://cvent-be.glean.com/api/v1/downloadchatfile/6ec8404548ac4cb986b77c73435051a3';
+// Placeholder photography (Unsplash, free to use) until the client supplies
+// their own. Products tagged "hero-carousel" in the admin replace these slides.
+const STUDY   = 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=2070';
+const MATTRESS = 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2070';
+const BEDROOM = 'https://images.unsplash.com/photo-1616627561950-9f746e330187?q=80&w=2000';
 
 export const CATEGORIES: string[] = [ 'All',
   'Sofas', 'Living', 'Bedroom', 'Mattress', 'Dining', 'Storage',
@@ -36,8 +46,7 @@ export const BANKS: Bank[] = [
 ];
 
 export const ANNOUNCEMENTS: Announcement[] = [
-  { id: 'a1', highlight: 'NEW ARRIVALS', text: 'Fresh designs for the season — explore now', href: '/products?new=true', buttonLabel: 'Shop New' },
-  { id: 'a2', highlight: 'FREE DELIVERY', text: 'On all orders over ₹5,000 across India', href: '/shipping', buttonLabel: 'Details' },
+  { id: 'a1', highlight: 'NEW ARRIVALS', text: 'Fresh designs for the season — explore now', href: '/products?is_new_arrival=true', buttonLabel: 'Shop New' },
 ];
 
 export const CONTACT: ContactLink & {
@@ -53,13 +62,14 @@ export const CONTACT: ContactLink & {
   label: 'Contact',
   href: '/contact',
   icon: null as any,
-  phoneHref: 'tel:+919876543210',
-  phoneDisplay: '+91 98765 43210',
-  emailHref: 'mailto:Jangidvikas5524@gmail.com',
-  emailDisplay: 'Jangidvikas5524@gmail.com',
-  whatsappHref: 'https://wa.me/919876543210',
-  facebookHref: 'https://facebook.com/metal_maniahub/',
-  instagramHref: 'https://www.instagram.com/metal_maniahub/',
+  // Single source of truth for contact details lives in lib/constants.
+  phoneHref: `tel:${PHONE_NUMBER.replace(/\s/g, '')}`,
+  phoneDisplay: PHONE_NUMBER.replace(/^\+91(\d{5})(\d{5})$/, '+91 $1 $2'),
+  emailHref: `mailto:${EMAIL_ADDRESS}`,
+  emailDisplay: EMAIL_ADDRESS,
+  whatsappHref: `${WHATSAPP_PREFIX}/${WHATSAPP_NUMBER.replace(/[^0-9]/g, '')}`,
+  facebookHref: FACEBOOK_URL,
+  instagramHref: INSTAGRAM_URL,
 };
 
 /** Sale ends 1d 17h 3m 18s from mount (matches the reference). */

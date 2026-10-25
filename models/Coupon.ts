@@ -126,10 +126,11 @@ CouponSchema.statics.validateCoupon = async function validateCoupon(
 ): Promise<ICoupon | null> {
   const now = new Date();
   const coupon = await this.findOne({
-    code: code.toUpperCase(),
+    code: code.trim().toUpperCase(),
     is_active: true,
-    starts_at: { $lte: now },
-    expires_at: { $gte: now },
+    // trusted(): sanitizeFilter would otherwise turn these into exact-match lookups.
+    starts_at: mongoose.trusted({ $lte: now }),
+    expires_at: mongoose.trusted({ $gte: now }),
   });
 
   if (!coupon) return null;

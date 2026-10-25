@@ -20,7 +20,6 @@ import {
 import type { LuxProduct } from "@/components/home/shared";
 import type { CarouselSlide, ProductAd } from "@/components/home/types";
 import type { PromoBannerSettings } from "@/components/home/PromoBannerOne";
-import type { SaleBarSettings } from "@/components/home/herosection/SaleBar";
 import type { HomeFAQItem } from "@/components/home/HomeFAQ";
 import { formatPrice } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -32,6 +31,10 @@ import {
   mapStoreInfo,
 } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/constants";
+
+// Every section reads live catalogue data (categories, tagged products,
+// settings), so render per request instead of freezing the page at build time.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: `Premium Furniture — Handcrafted for ${SITE_NAME}`,
@@ -145,18 +148,11 @@ async function HeroDataSection() {
       slug: p.slug,
     }));
 
-    // 4. SaleBar settings
-    const saleBarRaw = await Settings.getByKey("sale_bar");
-    const saleBarSettings: SaleBarSettings | undefined = saleBarRaw
-      ? (saleBarRaw as SaleBarSettings)
-      : undefined;
-
     return (
       <HeroSection
         categories={categories}
         carouselSlides={carouselSlides.length > 0 ? carouselSlides : undefined}
         productAds={productAds.length > 0 ? productAds : undefined}
-        saleBarSettings={saleBarSettings}
       />
     );
   } catch {
@@ -170,8 +166,8 @@ async function CategoriesSection() {
   try {
     await connectDB();
     const categories = await Category.find({ is_active: true })
-      .sort({ sort_order: 1 })
-      .limit(6)
+      .sort({ sort_order: 1, created_at: -1 })
+      .limit(12)
       .select("name slug image product_count description")
       .lean();
 
@@ -192,13 +188,13 @@ async function CategoriesSection() {
   }
 }
 
-// ── Best Sellers section ──
+// ── Featured collection section (featured + best sellers) ──
 
 async function BestSellersSection() {
   try {
     await connectDB();
     const products = await Product.find({
-      is_best_seller: true,
+      $or: [{ is_featured: true }, { is_best_seller: true }],
       status: "published",
     })
       .sort({ created_at: -1 })
@@ -218,7 +214,19 @@ async function PromoBannerSection() {
   try {
     await connectDB();
     const raw = await Settings.getByKey("promo_banner");
-    const settings = raw ? (raw as PromoBannerSettings) : undefined;
+    const settings: PromoBannerSettings = raw ? { ...(raw as PromoBannerSettings) } : {};
+
+    // "Shop the event" should open the featured product itself rather than a
+    // collection listing. A specific link set by the admin is left untouched.
+    const href = settings.cta_primary_href?.trim();
+    if (!href || href === "/products" || href.startsWith("/products?")) {
+      const featured = await Product.findOne({ is_featured: true, status: "published" })
+        .sort({ updated_at: -1 })
+        .select("slug")
+        .lean();
+      settings.cta_primary_href = featured ? `/products/${featured.slug}` : "/products?is_featured=true";
+    }
+
     return <PromoBannerOne settings={settings} />;
   } catch {
     return <PromoBannerOne />;

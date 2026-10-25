@@ -38,7 +38,6 @@ export function CartItem({ item }: { item: CartItemType }) {
             >
               {item.title}
             </Link>
-            <p className="mt-0.5 text-xs text-slate-500">SKU: {item.sku}</p>
           </div>
           <p className="flex-shrink-0 text-sm font-medium sm:text-base">
             {formatPrice(item.unit_price * item.quantity)}

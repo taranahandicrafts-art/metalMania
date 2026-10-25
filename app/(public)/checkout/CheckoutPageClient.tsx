@@ -44,12 +44,13 @@ export default function CheckoutPageClient() {
   const getDiscount = useCartStore((s) => s.getDiscount);
   const getTotal = useCartStore((s) => s.getTotal);
   const clearCart = useCartStore((s) => s.clearCart);
+  const coupon = useCartStore((s) => s.coupon);
 
   const subtotal = getSubtotal();
   const discount = getDiscount();
   const total = getTotal();
 
-  const handleWhatsAppOrder = () => {
+  const handleWhatsAppOrder = async () => {
     setError(null);
     const validationError = validateAddress(address);
     if (validationError) {
@@ -57,38 +58,74 @@ export default function CheckoutPageClient() {
       return;
     }
 
+    // Open the tab synchronously so popup blockers allow it, then point it at
+    // WhatsApp once the order has been saved.
+    const whatsappWindow = window.open("", "_blank");
     setSubmitting(true);
     try {
       const addr = address as Record<string, string>;
+      const customer = {
+        name: addr.name,
+        phone: addr.phone.replace(/\D/g, ""),
+        email: addr.email || undefined,
+        line1: addr.line1,
+        line2: addr.line2 || undefined,
+        city: addr.city,
+        state: addr.state,
+        pincode: addr.pincode,
+        country: addr.country || "India",
+      };
+
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            product_id: item.product_id,
+            variant_id: item.variant_id ?? null,
+            sku: item.sku,
+            quantity: item.quantity,
+          })),
+          customer: {
+            name: customer.name,
+            phone: customer.phone,
+            email: customer.email,
+            address: {
+              line1: customer.line1,
+              line2: customer.line2,
+              city: customer.city,
+              state: customer.state,
+              pincode: customer.pincode,
+              country: customer.country,
+            },
+          },
+          notes: notes || undefined,
+          coupon_code: coupon?.code,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        whatsappWindow?.close();
+        setError(data.error || "Could not place your order. Please try again.");
+        return;
+      }
+
       const url = getWhatsAppOrderUrl({
-        items: items.map((item) => ({
-          title: item.title,
-          sku: item.sku,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          variant_id: item.variant_id,
-        })),
-        address: {
-          name: addr.name,
-          phone: addr.phone.replace(/\D/g, ""),
-          email: addr.email || undefined,
-          line1: addr.line1,
-          line2: addr.line2 || undefined,
-          city: addr.city,
-          state: addr.state,
-          pincode: addr.pincode,
-          country: addr.country || "India",
-        },
-        subtotal,
-        total,
-        discount: discount && discount.amount > 0 ? discount : null,
+        items: data.items,
+        address: customer,
+        subtotal: data.subtotal,
+        total: data.total,
+        discount: data.discount > 0 && discount ? { ...discount, amount: data.discount } : null,
         notes: notes || undefined,
+        orderNumber: data.order_number,
       });
 
-      window.open(url, "_blank");
+      if (whatsappWindow) whatsappWindow.location.href = url;
+      else window.location.href = url;
       clearCart();
     } catch {
-      setError("Failed to open WhatsApp. Please try again.");
+      whatsappWindow?.close();
+      setError("Failed to place your order. Please check your connection and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -145,9 +182,8 @@ export default function CheckoutPageClient() {
                 >
                   <span className="text-muted-foreground">
                     {item.title}
-                    {item.variant_id ? " (Variant)" : ""}
                     <span className="block text-xs">
-                      SKU: {item.sku} × {item.quantity}
+                      Qty: {item.quantity}
                     </span>
                   </span>
                   <span className="whitespace-nowrap">
@@ -191,7 +227,7 @@ export default function CheckoutPageClient() {
             className="flex w-full items-center justify-center gap-2 rounded-md bg-[#25D366] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#20BD5C] disabled:opacity-50"
           >
             {submitting ? (
-              "Opening WhatsApp..."
+              "Placing order..."
             ) : (
               <>
                 <svg
