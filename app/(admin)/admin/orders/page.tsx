@@ -66,6 +66,19 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
         </div>
       </div>
 
+      <form method="get" className="flex gap-2">
+        {status && <input type="hidden" name="status" value={status} />}
+        <input
+          name="search"
+          defaultValue={search}
+          placeholder="Search by order ID, customer name or phone"
+          className="flex h-9 w-full max-w-sm rounded-md border bg-background px-3 text-sm"
+        />
+        <button type="submit" className="h-9 rounded-md bg-primary px-4 text-sm text-primary-foreground hover:bg-primary/90">
+          Search
+        </button>
+      </form>
+
       <div className="overflow-hidden rounded-lg border">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -119,7 +132,7 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
             <Link
               key={p}
-              href={`/admin/orders?page=${p}${status ? `&status=${status}` : ''}`}
+              href={`/admin/orders?page=${p}${status ? `&status=${status}` : ''}${search ? `&search=${encodeURIComponent(search)}` : ''}`}
               className={`inline-flex h-8 w-8 items-center justify-center rounded text-sm ${
                 p === page ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'
               }`}

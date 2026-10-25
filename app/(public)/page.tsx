@@ -31,6 +31,7 @@ import {
   mapStoreInfo,
 } from "@/lib/seo";
 import { SITE_NAME } from "@/lib/constants";
+import { withDefaultCategories } from "@/components/home/data/categories";
 
 // Every section reads live catalogue data (categories, tagged products,
 // settings), so render per request instead of freezing the page at build time.
@@ -87,12 +88,12 @@ async function HeroDataSection() {
   try {
     await connectDB();
 
-    // 1. DB categories → CategoryNav (prepend "All")
+    // 1. DB categories → CategoryNav (prepend "All" and "New Arrivals")
     const dbCategories = await Category.find({ is_active: true })
       .sort({ sort_order: 1 })
       .select("name")
       .lean();
-    const categories = ["All", ...dbCategories.map((c) => c.name)];
+    const categories = withDefaultCategories(dbCategories.map((c) => c.name));
 
     // 2. Products tagged hero-carousel → HeroCarousel slides
     const carouselProducts = await Product.find({

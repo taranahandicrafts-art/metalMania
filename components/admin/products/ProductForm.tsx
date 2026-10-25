@@ -56,7 +56,11 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
     shipping_est_max: ((initialData?.shipping as Record<string, unknown>)?.estimated_days as Record<string, number>)?.max || 7,
     warranty_period: ((initialData?.warranty as Record<string, string>)?.period) || '',
     warranty_desc: ((initialData?.warranty as Record<string, string>)?.description) || '',
-    thumbnail: (initialData?.thumbnail as string) || '',
+    thumbnail:
+      (initialData?.thumbnail as string) &&
+      initialData?.thumbnail !== (initialData?.images as { url: string }[] | undefined)?.[0]?.url
+        ? (initialData?.thumbnail as string)
+        : '',
   });
 
   const [images, setImages] = useState<{ url: string; alt: string }[]>(
@@ -254,7 +258,12 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
           </div>
           <div className="space-y-2">
             <label className={labelClass}>SKU</label>
-            <input className={inputClass} value={form.sku} onChange={(e) => update('sku', e.target.value.toUpperCase())} required />
+            <input className={inputClass} value={form.sku} onChange={(e) => update('sku', e.target.value.toUpperCase())} placeholder="e.g. MM-CHAIR-001" required />
+            <p className="text-xs text-muted-foreground">
+              Stock Keeping Unit: a unique code for this product. Inventory stock is tracked against it, and it appears in
+              admin orders and order exports, admin product search and the product page details. Must be unique; variants
+              get their own SKUs.
+            </p>
           </div>
           <div className="space-y-2">
             <label className={labelClass}>Brand</label>
@@ -432,13 +441,53 @@ export function ProductForm({ initialData, categories = [] }: ProductFormProps) 
             ))}
           </div>
         )}
-        <div className="space-y-2">
-          <label className={labelClass}>Thumbnail URL (optional)</label>
-          <input className={inputClass} value={form.thumbnail} onChange={(e) => update('thumbnail', e.target.value)} placeholder="Leave empty to use first image" />
-          <p className="text-xs text-muted-foreground">
-            The cover image shown on product cards, home-page sections, search results and the cart. Paste an image URL
-            to use a different picture from the gallery; leave it empty and the first image above is used automatically.
-          </p>
+        <div className="space-y-3 border-t pt-4">
+          <div>
+            <label className={labelClass}>Thumbnail Image (optional)</label>
+            <p className="mt-1 text-xs text-muted-foreground">
+              The cover photo for this product. It is shown on product cards in listings and search, in home-page sections,
+              in the cart and on the WhatsApp/social share preview, and it is the first picture on the product page. If you
+              don&apos;t upload one, the first gallery image above is used; if there are no images at all, a placeholder is shown.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border bg-muted">
+              {form.thumbnail || images[0]?.url ? (
+                <Image src={form.thumbnail || images[0].url} alt="Thumbnail preview" fill className="object-cover" sizes="96px" />
+              ) : (
+                <div className="flex h-full items-center justify-center text-muted-foreground/60">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 4-4 3 3 5-5 6 6"/></svg>
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">
+                {form.thumbnail
+                  ? 'Using the uploaded thumbnail.'
+                  : images[0]?.url
+                    ? 'Using the first gallery image.'
+                    : 'No image yet: a placeholder will be shown.'}
+              </p>
+              <div className="flex gap-2">
+                <CloudinaryUploadButton
+                  onUpload={(result) => {
+                    const url = result.secure_url || result.url;
+                    if (url) update('thumbnail', url);
+                  }}
+                  label={form.thumbnail ? 'Replace' : 'Upload Thumbnail'}
+                />
+                {form.thumbnail && (
+                  <button
+                    type="button"
+                    onClick={() => update('thumbnail', '')}
+                    className="h-10 rounded-md border px-3 text-sm hover:bg-muted"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

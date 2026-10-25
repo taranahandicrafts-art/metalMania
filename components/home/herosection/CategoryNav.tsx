@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CATEGORIES } from '../data/showcase';
+import { NEW_ARRIVALS_LABEL } from '../data/categories';
 
 interface CategoryNavProps {
   categories?: string[];
@@ -33,16 +34,19 @@ const CategoryNav: React.FC<CategoryNavProps> = ({
   const [pending, setPending] = useState<string | null>(null);
 
   const urlCategory = searchParams.get('category') ?? '';
+  const isNewArrivals = searchParams.get('is_new_arrival') === 'true';
+  const queryKey = searchParams.toString();
 
   // Clear the optimistic highlight once the URL reflects a navigation so the
   // active state stays in sync on back/forward navigation.
   useEffect(() => {
     setPending(null);
-  }, [urlCategory]);
+  }, [queryKey]);
 
   const active = useMemo(() => {
     if (pending) return pending;
     if (activeCategory) return activeCategory;
+    if (isNewArrivals && !urlCategory) return NEW_ARRIVALS_LABEL;
     if (urlCategory) {
       const byName = categories.find((c) => c.toLowerCase() === urlCategory.toLowerCase());
       if (byName) return byName;
@@ -50,7 +54,7 @@ const CategoryNav: React.FC<CategoryNavProps> = ({
       if (bySlug) return bySlug;
     }
     return categories.includes('All') ? 'All' : initialActive;
-  }, [pending, activeCategory, urlCategory, categories, initialActive]);
+  }, [pending, activeCategory, isNewArrivals, urlCategory, categories, initialActive]);
 
   const handleClick = (cat: string) => {
     if (onSelect) {
@@ -58,7 +62,13 @@ const CategoryNav: React.FC<CategoryNavProps> = ({
       return;
     }
     setPending(cat);
-    router.push(cat === 'All' ? basePath : `${basePath}?category=${encodeURIComponent(cat)}`);
+    router.push(
+      cat === 'All'
+        ? basePath
+        : cat === NEW_ARRIVALS_LABEL
+          ? `${basePath}?is_new_arrival=true`
+          : `${basePath}?category=${encodeURIComponent(cat)}`,
+    );
   };
 
   return (

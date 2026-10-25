@@ -11,7 +11,11 @@ interface ProductGalleryProps {
 }
 
 export function ProductGallery({ images, thumbnail, title }: ProductGalleryProps) {
-  const allImages = images.length > 0 ? images : (thumbnail ? [{ url: thumbnail, alt: title }] : []);
+  // The thumbnail is the cover photo, so show it first unless it's already in the gallery.
+  const allImages =
+    thumbnail && !images.some((img) => img.url === thumbnail)
+      ? [{ url: thumbnail, alt: title }, ...images]
+      : images;
   const [selected, setSelected] = useState(0);
 
   if (allImages.length === 0) {

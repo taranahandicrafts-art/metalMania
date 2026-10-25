@@ -445,8 +445,9 @@ ProductSchema.pre('findOneAndUpdate', async function preFindOneAndUpdate(next) {
   const hasThumbnailKey = update && Object.prototype.hasOwnProperty.call(update, 'thumbnail');
   if (hasThumbnailKey && !update.thumbnail) {
     const updateImages = update.images as ProductImage[] | undefined;
-    if (Array.isArray(updateImages) && updateImages.length > 0 && updateImages[0]?.url) {
-      this.set({ thumbnail: updateImages[0].url });
+    if (Array.isArray(updateImages)) {
+      // Images are being replaced too: use the new first image, or none if the gallery was emptied.
+      this.set({ thumbnail: updateImages[0]?.url || '' });
     } else {
       const doc = await this.model.findOne(this.getQuery()).select('images').lean();
       const docImages = (doc as unknown as { images?: ProductImage[] } | null)?.images;

@@ -11,6 +11,10 @@ import {
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildMetadata, breadcrumbSchema } from "@/lib/seo";
 import CategoryNav from "@/components/home/herosection/CategoryNav";
+import {
+  NEW_ARRIVALS_LABEL,
+  withDefaultCategories,
+} from "@/components/home/data/categories";
 
 /**
  * Resolves a `category` query param — which may be an ObjectId, a slug or a
@@ -154,7 +158,7 @@ export default async function ProductsPage({ searchParams }: Props) {
     },
   ];
 
-  const navCategories = ["All", ...categories.map((c) => c.name)];
+  const navCategories = withDefaultCategories(categories.map((c) => c.name));
 
   return (
     <>
@@ -167,7 +171,10 @@ export default async function ProductsPage({ searchParams }: Props) {
         >
           <CategoryNav
             categories={navCategories}
-            activeCategory={resolvedCategory?.name || "All"}
+            activeCategory={
+              resolvedCategory?.name ||
+              (activeFlag?.param === "is_new_arrival" ? NEW_ARRIVALS_LABEL : "All")
+            }
           />
         </Suspense>
 

@@ -170,13 +170,17 @@ function ResultsPanel({
                   idx === activeIdx && "bg-lux-sand/50",
                 )}
               >
-                {p.thumbnail && (
+                {p.thumbnail ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={p.thumbnail}
                     alt={p.title}
                     className="h-10 w-10 shrink-0 rounded-md object-cover"
                   />
+                ) : (
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-lux-sand/40 text-neutral-400">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 4-4 3 3 5-5 6 6"/></svg>
+                  </span>
                 )}
                 <span className="flex-1 text-sm">{p.title}</span>
                 {typeof p.final_price === "number" && (
